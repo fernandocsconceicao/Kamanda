@@ -56,19 +56,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain) throws ServletException, IOException {
         try {
             if (
-                    (request.getRequestURI().equals("/totem/screens/login")
+                    (
+                            request.getRequestURI().equals("/usuario/autenticar"))
                             ||
-                            request.getRequestURI().equals("/api/v1/aut/autenticar"))
+                            request.getRequestURI().equals("/usuario/registrar")
                             ||
-                            request.getRequestURI().equals("/api/v1/aut/registrar")
+                            request.getRequestURI().equals("/usuario/esqueciminhasenha")
                             ||
-                            request.getRequestURI().equals("/api/v1/aut/esqueciminhasenha")
+                            request.getRequestURI().equals("/usuario/esqueciasenha/gerarcodigo")
                             ||
-                            request.getRequestURI().equals("/api/v1/aut/esqueciasenha/gerarcodigo")
+                            request.getRequestURI().equals("/usuario/esqueciasenha/confirmarcodigo")
                             ||
-                            request.getRequestURI().equals("/api/v1/aut/esqueciasenha/confirmarcodigo")
-                            ||
-                            request.getRequestURI().equals("/api/v1/aut/esqueciasenha/enviarnovasenha")
+                            request.getRequestURI().equals("/usuario/esqueciasenha/enviarnovasenha")
                             ||
                             request.getRequestURI().equals("/usuario/excluir")
                             ||
@@ -135,16 +134,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         httpReq.addHeader(Cabecalhos.NOME.getValue(), userDetails.getNome());
         if (userDetails.getContaFinanceira() != null)
             httpReq.addHeader(Cabecalhos.CONTA_FINANCEIRA.getValue(), userDetails.getContaFinanceira().getId().toString());
-        if (userDetails.getIdPreferencia() != null)
-            httpReq.addHeader(Cabecalhos.PREFERENCIA.getValue(), userDetails.getIdPreferencia().toString());
 
 
 
         httpReq.addHeader(Cabecalhos.USUARIO.getValue(), userDetails.getId().toString());
 
-        if (userDetails.getCarrinhoId() != null) {
-            httpReq.addHeader(Cabecalhos.CARRINHO.getValue(), userDetails.getCarrinhoId().toString());
-        }
 
 
         return httpReq;

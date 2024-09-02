@@ -4,10 +4,8 @@ package br.app.camarada.backend.servicos;
 //import br.app.camarada.backend.client.WorldTimeClient;
 import br.app.camarada.backend.dto.AuthenticationRequestDto;
 import br.app.camarada.backend.dto.AuthenticationResponseDto;
-import br.app.camarada.backend.dto.RespostaHoraAtualWorldTime;
-import br.app.camarada.backend.dto.UserCreationDto;
+import br.app.camarada.backend.dto.RequisicaoRegistro;
 import br.app.camarada.backend.entidades.ContaFinanceira;
-import br.app.camarada.backend.entidades.Permissao;
 import br.app.camarada.backend.entidades.Preferencias;
 import br.app.camarada.backend.entidades.Usuario;
 import br.app.camarada.backend.enums.TipoConta;
@@ -28,10 +26,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -88,7 +84,7 @@ public class ServicoParaUsuarios implements UserDetailsService {
     }
 
     @Transactional
-    public AuthenticationResponseDto registrarUsuario(UserCreationDto dto) {
+    public AuthenticationResponseDto registrarUsuario(RequisicaoRegistro dto) {
         Usuario byEmail = repositorioDeUsuario.findByEmail(dto.getEmail());
         if (byEmail != null) {
             throw new EmailJaCadastradoException();
@@ -113,26 +109,19 @@ public class ServicoParaUsuarios implements UserDetailsService {
 
         Preferencias preferencias = servicoDePreferencias.salvar(new Preferencias());
 
-        servicoDeEmail.enviarEmail(mensagem);
+//        servicoDeEmail.enviarEmail(mensagem);
 
         Usuario user = new Usuario(null,
                 encoder.encode(dto.getSenha()),
                 dto.getTipoConta(),
                 dto.getEmail(),
-                totemId,
                 dto.getNome(),
                 null,
-                estabelecimentoId,
-                true,
-                null,
-                entregadorId,
                 null,
                 codigo,
-                false,
                 null,
-                false,
                 null,
-                preferencias.getId(),
+                null,
                 null,
                 null,
                 null
@@ -294,20 +283,11 @@ public class ServicoParaUsuarios implements UserDetailsService {
         mensagem.setText("Seu código de confirmação de email da conta Ubuntu é " + usuario.getCodigoConfirmacao());
         mensagem.setSubject("Confirmação de email");
         servicoDeEmail.enviarEmail(mensagem);
-
     }
 
     public void salvarUsuario(Usuario usuario) {
         repositorioDeUsuario.save(usuario);
     }
-
-    public Usuario obterUsuarioPorSessaoWb(String sessaoId) {
-        return repositorioDeUsuario.findByIdDaSessaoWs(sessaoId);
-    }
-
-
-
-
 
     public void excluirConta(Long idUsuario) {
         Usuario usuario = repositorioDeUsuario.findById(idUsuario).get();

@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 
-public class UserCreationDto {
+public class RequisicaoRegistro {
     private String email;
     private String senha;
     private String celular;

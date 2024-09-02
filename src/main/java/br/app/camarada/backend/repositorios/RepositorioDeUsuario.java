@@ -11,13 +11,8 @@ import java.util.ArrayList;
 
 @Repository
 public interface RepositorioDeUsuario extends JpaRepository<Usuario, Long> {
-     Usuario findByEstablishmentId(Long idDeEstabelecimento);
 
     Usuario findByEmail(String email);
-
     ArrayList<Usuario> findAll();
 
-    Usuario findByIdDaSessaoWs(String sessaoId);
-    @Query(nativeQuery = true, value = "Select * from usuario where entregador_id = :id")
-    Usuario findByEntregadorId(@Param("id") Long idEntregador);
 }

@@ -30,7 +30,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
     private void filtroDeSeguranca(String caminho, List<Permissao> permissoes, FilterChain filterChain, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, ServletException {
         if (
-                caminho.equals("/api/v1/aut/confirmaremail") ||
+                caminho.equals("/perfil/publicar") ||
                 caminho.equals("/api/v1/aut/reenviarcodigoemail") ||
                         caminho.equals("/api/v1/aut/esqueciminhasenha") ||
                         caminho.equals("/usuario/excluir") ||
