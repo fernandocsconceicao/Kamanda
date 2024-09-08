@@ -2,6 +2,7 @@ package br.app.camarada.backend.entidades;
 
 import br.app.camarada.backend.enums.TipoPostagem;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
@@ -10,6 +11,7 @@ import java.util.List;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class Publicacao implements Conteudo {
     @Id
     @GeneratedValue
@@ -18,18 +20,31 @@ public class Publicacao implements Conteudo {
     @Enumerated
     private TipoPostagem tipoPostagem;
     @ManyToMany
-    private List<Perfil> perfil;
+    private List<Perfil> perfisMencionados;
+    @ManyToOne
+    private Perfil autorPrincipal;
 
 
     public static Publicacao montar(String texto,
                                     TipoPostagem tipo,
-                                    List<Perfil> perfil) {
+                                    List<Perfil> perfisMencionados,
+                                    Perfil autorPrincipal) {
 
-        return new Publicacao(null, texto, tipo, perfil);
+        return new Publicacao(null, texto, tipo, perfisMencionados, autorPrincipal);
     }
 
     @Override
     public String obtertextoDaPostagem() {
         return this.texto;
+    }
+
+    @Override
+    public TipoPostagem obterTipoDeConteudo() {
+        return this.tipoPostagem;
+    }
+
+    @Override
+    public Perfil obterAutorPrincipal() {
+        return this.autorPrincipal;
     }
 }

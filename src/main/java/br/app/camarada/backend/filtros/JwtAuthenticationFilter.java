@@ -91,7 +91,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
-
                 doFilter(requisicao, response, filterChain);
             } else {
                 log.info("Filtro de Autenticação- Endpoint autenticado " + request.getRequestURI());
@@ -118,6 +117,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
+                System.out.println("filtro");
                 filterChain.doFilter(requisicao, response);
             }
         } catch (ExpiredJwtException e) {

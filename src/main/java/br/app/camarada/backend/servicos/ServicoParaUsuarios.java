@@ -48,9 +48,6 @@ public class ServicoParaUsuarios implements UserDetailsService {
     private final ServicoDeEmail servicoDeEmail;
     private final RepositorioDeContaFinanceira repositorioDeContaFinanceira;
 
-
-
-    private String pingPong = "ping";
     private ObjectMapper objectMapper = new ObjectMapper();
 
     public AuthenticationResponseDto authenticate(AuthenticationRequestDto dto) {

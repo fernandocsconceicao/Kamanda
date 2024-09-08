@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("usuario")
+@RequestMapping("/usuario")
 @AllArgsConstructor
 public class ControladorDeUsuarios {
     private ServicoParaUsuarios servicoParaUsuarios;
@@ -21,6 +21,7 @@ public class ControladorDeUsuarios {
     @PostMapping("/registrar")
     public ResponseEntity<AuthenticationResponseDto> registrarUsuario(@RequestBody RequisicaoRegistro dto) {
         try {
+            System.out.println("23423");
             AuthenticationResponseDto authenticationResponseDto = servicoParaUsuarios.registrarUsuario(dto);
             if (authenticationResponseDto == null) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();

@@ -9,7 +9,6 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Data
-
 public class Perfil {
     @GeneratedValue
     @Id
@@ -21,4 +20,6 @@ public class Perfil {
     private TipoPerfil tipoPerfil;
     private Boolean ativo;
     private TipoPerfil tipo;
+    private String nome;
+    private Boolean verificado;
 }

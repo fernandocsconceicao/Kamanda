@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -23,7 +24,6 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableWebSecurity
 @Configuration
 @Slf4j
-
 public class WebSecurityConfig {
 
     @Lazy
@@ -41,6 +41,7 @@ public class WebSecurityConfig {
     @Lazy
     @Autowired
     CustomAuthorizationFilter customAuthenticationFilter;
+
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
@@ -52,11 +53,15 @@ public class WebSecurityConfig {
         source.registerCorsConfiguration("/**", corsConfig);
         return new CorsFilter(source);
     }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-       http.authorizeHttpRequests()
+        http
+                .csrf().disable();
+        http
+                .authorizeHttpRequests()
                 .antMatchers("/totem", "/adm").hasAnyAuthority("ADMIN")
-                .antMatchers("/api/v1/auth/**", "/totem/screens/login")
+                .antMatchers("/usuario/**", "/totem/screens/login")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
@@ -69,6 +74,5 @@ public class WebSecurityConfig {
                 .cors();
         return http.build();
     }
-
 
 }

@@ -30,54 +30,14 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
     private void filtroDeSeguranca(String caminho, List<Permissao> permissoes, FilterChain filterChain, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException, ServletException {
         if (
-                caminho.equals("/perfil/publicar") ||
-                caminho.equals("/api/v1/aut/reenviarcodigoemail") ||
-                        caminho.equals("/api/v1/aut/esqueciminhasenha") ||
-                        caminho.equals("/usuario/excluir") ||
-                        caminho.equals("/pedido/listar") ||
-                        caminho.equals("/pagamento/verificar") ||
-                        caminho.equals("/totem/screens/pix/criar") ||
-                        caminho.equals("/totem/screens/home") ||
-                        caminho.equals("/totem/screens/product") ||
-                        caminho.equals("/totem/screens/endereco") ||
-                        caminho.equals("/totem/screens/cart") ||
-                        caminho.equals("/cliente/endereco/obter") ||
-                        caminho.equals("/totem/screens/edicaoendereco") ||
-                        caminho.equals("/endereco/adicionar") ||
-                        caminho.equals("/totem/screens/payments") ||
-                        caminho.equals("/totem/screens/establishment") ||
-                        caminho.equals("/totem/screens/payment/pix") ||
-                        caminho.equals("/totem/screens/payment/card") ||
-                        caminho.equals("/totem/screens/order") ||
-                        caminho.equals("/totem/screens/order/list") ||
-                        caminho.equals("/totem/screens/payment/auth") ||
-                        caminho.equals("/totem/screens/sucesso") ||
-                        caminho.equals("/cliente/carrinho/editar") ||
-                        caminho.equals("/cliente/cart/product/add") ||
-                        caminho.equals("/totem/screens/pedido/finalizar") ||
-                        caminho.equals("/totem/screens/saldo") ||
-                        caminho.equals("/totem/screens/saldo/pix") ||
-                        caminho.equals("/pagamento/saldo") ||
-
-                        caminho.equals("/regiao/listar") ||
-                        caminho.equals("/entregador/sessoes") ||
-                        caminho.equals("/entregador/minhaviagem") ||
-                        caminho.equals("/entregador/iniciartrabalho") ||
-                        caminho.equals("/entregador/finalizartrabalho") ||
-                        caminho.equals("/entregador/finalizarviagem") ||
-                        caminho.equals("/entregador/respondercorrida") ||
-                        caminho.equals("/entregador/obteroferta") ||
-                        caminho.equals("/pagamento/cancelar") ||
-                        caminho.equals("/cliente/primeiroacesso") ||
-                        caminho.equals("/totem/screens/pedido/avaliarPedido") ||
-                        caminho.equals("/pedido/avaliarPedido")
+                caminho.equals("/perfil/publicar") 
         ) {
 //            filterUtil.aplicarSeguranca(permissoes, 1);
             filterChain.doFilter(request, response);
             return;
         }
         if (
-                caminho.equals("/establishment") ||
+                caminho.equals("/usuario/registrar") ||
                         caminho.equals("/produto") ||
                         caminho.equals("/logs") ||
                         caminho.equals("/regiao/definirlocalidade") ||
@@ -126,15 +86,15 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         if (
                 (request.getRequestURI().equals("/totem/screens/login")
                         ||
-                        request.getRequestURI().equals("/api/v1/aut/autenticar"))
+                        request.getRequestURI().equals("/usuario/autenticar"))
                         ||
-                        request.getRequestURI().equals("/api/v1/aut/registrar")
+                        request.getRequestURI().equals("/usuario/registrar")
                         ||
-                        request.getRequestURI().equals("/api/v1/aut/esqueciasenha/gerarcodigo")
+                        request.getRequestURI().equals("/usuario/esqueciasenha/gerarcodigo")
                         ||
-                        request.getRequestURI().equals("/api/v1/aut/esqueciasenha/confirmarcodigo")
+                        request.getRequestURI().equals("/usuario/esqueciasenha/confirmarcodigo")
                         ||
-                        request.getRequestURI().equals("/api/v1/aut/esqueciasenha/enviarnovasenha")
+                        request.getRequestURI().equals("/usuario/esqueciasenha/enviarnovasenha")
                         ||
                         request.getRequestURI().equals("/regiao/listar")
                         ||
