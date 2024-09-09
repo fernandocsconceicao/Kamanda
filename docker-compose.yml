@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+#  mysql:
+#    image: mysql:latest
+#    container_name: mysql
+#    environment:
+#      MYSQL_ROOT_PASSWORD:
+#      MYSQL_DATABASE: ubuntu
+#      MYSQL_ALLOW_EMPTY_PASSWORD: true
+#      MYSQL_USER: ubuntu
+#      MYSQL_PASSWORD: Ubuntustore1@
+#    networks:
+#      - ubuntu
+#    ports:
+#      - "3306:3306"
+#    volumes:
+#      - /path/para/seu/diretorio:/docker-entrypoint-initdb.d  # Opcional: carregar scripts SQL
+
+#  email:
+#    image: analogic/postfix:latest
+#    container_name: postfix
+#    environment:
+#      MAILNAME: 149.100.154.242
+#      MAILDOMAIN: 149.100.154.242
+#      MYHOSTNAME: 149.100.154.242
+#      SMTP_LOGIN: 149.100.154.242
+#      SMTP_PASSWORD: sua_senha_email
+#      SPOOF_PROTECTION: "no"
+#    ports:
+#      - "25:25"
+#    networks:
+#      - ubuntu
+
+  backend:
+    build:
+      context: .  # Substitua pelo caminho real para o seu Dockerfile
+    container_name: backend
+    networks:
+      - ubuntu
+    ports:
+      - "7200:7200"
+
+networks:
+  ubuntu:
