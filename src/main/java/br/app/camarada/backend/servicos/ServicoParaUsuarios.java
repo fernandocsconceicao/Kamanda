@@ -2,10 +2,12 @@ package br.app.camarada.backend.servicos;
 
 
 //import br.app.camarada.backend.client.WorldTimeClient;
-import br.app.camarada.backend.dto.AuthenticationRequestDto;
+import br.app.camarada.backend.dto.RequisicaoDeAutenticacao;
 import br.app.camarada.backend.dto.AuthenticationResponseDto;
 import br.app.camarada.backend.dto.RequisicaoRegistro;
+import br.app.camarada.backend.dto.ServicoParaPerfil;
 import br.app.camarada.backend.entidades.ContaFinanceira;
+import br.app.camarada.backend.entidades.Perfil;
 import br.app.camarada.backend.entidades.Preferencias;
 import br.app.camarada.backend.entidades.Usuario;
 import br.app.camarada.backend.enums.TipoConta;
@@ -30,6 +32,7 @@ import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -45,17 +48,18 @@ public class ServicoParaUsuarios implements UserDetailsService {
 //    private final WorldTimeClient worldTimeClient;
     private final RepositorioDeUsuario repositorioDeUsuario;
     private final ServicoDePreferencias servicoDePreferencias;
+    private final ServicoParaPerfil servicoParaPerfil;
     private final ServicoDeEmail servicoDeEmail;
     private final RepositorioDeContaFinanceira repositorioDeContaFinanceira;
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
-    public AuthenticationResponseDto authenticate(AuthenticationRequestDto dto) {
+    public AuthenticationResponseDto authenticate(RequisicaoDeAutenticacao dto) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(dto.getEmail(),
-                        dto.getPassword()));
+                        dto.getSenha()));
         byte[] imagemPerfil = null;
-        Long totemId = null;
+
         Long establishmentId = null;
 
         Long IdEntregador = null;
@@ -69,8 +73,6 @@ public class ServicoParaUsuarios implements UserDetailsService {
 
         return new AuthenticationResponseDto(
                 token,
-                totemId,
-                establishmentId,
                 user.getTipoConta().name(),
                 user.getPrimeiroAcesso(),
                 user.getId(),
@@ -105,7 +107,6 @@ public class ServicoParaUsuarios implements UserDetailsService {
         mensagem.setSubject("Confirmação de email");
 
         Preferencias preferencias = servicoDePreferencias.salvar(new Preferencias());
-
 //        servicoDeEmail.enviarEmail(mensagem);
 
         Usuario user = new Usuario(null,
@@ -121,10 +122,9 @@ public class ServicoParaUsuarios implements UserDetailsService {
                 null,
                 null,
                 null,
+                null,
+                null,
                 null
-
-
-
         );
 
         user = repositorioDeUsuario.save(user);
@@ -140,13 +140,26 @@ public class ServicoParaUsuarios implements UserDetailsService {
 //                null,respostaHoraAtualWorldTime.getDatetime().toLocalDateTime()))
                 null, LocalDateTime.now()))
         );
+        Perfil perfil = servicoParaPerfil.criarPerfil(user);
 
 
-
+        ArrayList<Perfil> listaDePerfis = new ArrayList<>();
+        listaDePerfis.add(perfil);
+        user.setPerfil(listaDePerfis);
+        user.setPerfilPrincipalId(perfil.getId());
+        repositorioDeUsuario.save(user);
         String token = jwtService.gerarToken(user);
 
 
-        return null;
+        return new AuthenticationResponseDto(
+                token,
+                TipoConta.USUARIO.name(),
+                true,
+                user.getId(),
+                null,
+                user.getEmailConfirmado(),
+                null
+        );
     }
 
     private String gerarCodigoDeConfirmacao() {
@@ -288,6 +301,7 @@ public class ServicoParaUsuarios implements UserDetailsService {
 
     public void excluirConta(Long idUsuario) {
         Usuario usuario = repositorioDeUsuario.findById(idUsuario).get();
+        servicoParaPerfil.excluirPerfil(usuario.getId());
 
         repositorioDeUsuario.deleteById(idUsuario);
     }

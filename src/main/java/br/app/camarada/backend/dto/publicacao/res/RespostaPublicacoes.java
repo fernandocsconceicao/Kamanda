@@ -1,4 +1,4 @@
-package br.app.camarada.backend.dto.postagem.res;
+package br.app.camarada.backend.dto.publicacao.res;
 
 import br.app.camarada.backend.dto.PerfilDto;
 import br.app.camarada.backend.dto.PublicacaoDto;

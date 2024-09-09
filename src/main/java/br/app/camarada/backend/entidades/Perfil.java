@@ -1,6 +1,7 @@
 package br.app.camarada.backend.entidades;
 
 import br.app.camarada.backend.enums.TipoPerfil;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
@@ -9,6 +10,7 @@ import java.util.List;
 @Entity
 @NoArgsConstructor
 @Data
+@AllArgsConstructor
 public class Perfil {
     @GeneratedValue
     @Id
@@ -22,4 +24,6 @@ public class Perfil {
     private TipoPerfil tipo;
     private String nome;
     private Boolean verificado;
+    @ManyToOne
+    private Usuario usuario;
 }

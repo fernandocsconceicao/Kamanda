@@ -27,7 +27,7 @@ public class Usuario implements UserDetails {
     @Column(unique = true)
     private String email;
     private String nome;
-    @OneToMany(fetch= FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER)
     private List<Permissao> permissoes;
     private Boolean primeiroAcesso;
     private String codigoConfirmacao;
@@ -38,6 +38,9 @@ public class Usuario implements UserDetails {
     private Boolean pingpongEstaOk;
     @OneToOne(fetch = FetchType.EAGER)
     private ContaFinanceira contaFinanceira;
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Perfil> perfil;
+    private Long perfilPrincipalId;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return getPermissoes();

@@ -1,7 +1,8 @@
-package br.app.camarada.backend.dto.postagem.req;
+package br.app.camarada.backend.dto.publicacao.req;
 
 import br.app.camarada.backend.enums.TipoPostagem;
 import lombok.Data;
+import org.springframework.lang.Nullable;
 
 import java.util.List;
 
@@ -9,6 +10,7 @@ import java.util.List;
 public class RequisicaoDePostagem {
     private String texto;
     private TipoPostagem tipoPostagem;
+    @Nullable
     private List<Long> idsDePerfisMencionados;
 
 }

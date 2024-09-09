@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -23,14 +24,17 @@ public class Publicacao implements Conteudo {
     private List<Perfil> perfisMencionados;
     @ManyToOne
     private Perfil autorPrincipal;
+    private LocalDateTime localDateTime;
 
 
     public static Publicacao montar(String texto,
                                     TipoPostagem tipo,
                                     List<Perfil> perfisMencionados,
-                                    Perfil autorPrincipal) {
+                                    Perfil autorPrincipal,
+                                    LocalDateTime data) {
 
-        return new Publicacao(null, texto, tipo, perfisMencionados, autorPrincipal);
+
+        return new Publicacao(null, texto, tipo, perfisMencionados, autorPrincipal,data);
     }
 
     @Override

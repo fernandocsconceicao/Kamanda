@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.ext as ext1
-
 plugins {
 	java
 	id("org.springframework.boot") version "2.7.9"
@@ -9,7 +7,11 @@ plugins {
 group = "br.com.camarada"
 version = "0.0.1-SNAPSHOT"
 
-
+dependencyManagement {
+	imports {
+		mavenBom ("org.springframework.cloud:spring-cloud-dependencies:2021.0.8")
+	}
+}
 repositories {
 	mavenCentral()
 	maven {
@@ -20,7 +22,8 @@ repositories {
 }
 
 dependencies {
-//	implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.1.3")
+	implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
+
 //	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	runtimeOnly("com.mysql:mysql-connector-j")

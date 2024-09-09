@@ -1,14 +1,19 @@
 package br.app.camarada.backend.dto;
 
 
-import br.app.camarada.backend.dto.postagem.req.RequisicaoDePostagem;
+import br.app.camarada.backend.client.WorldTimeClient;
+import br.app.camarada.backend.dto.publicacao.req.RequisicaoDePostagem;
 import br.app.camarada.backend.entidades.Perfil;
 import br.app.camarada.backend.entidades.Publicacao;
+import br.app.camarada.backend.entidades.Usuario;
+import br.app.camarada.backend.enums.TipoPerfil;
 import br.app.camarada.backend.repositorios.RepositorioDePerfil;
 import br.app.camarada.backend.repositorios.RepositorioDePublicacoes;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.MalformedParametersException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -18,25 +23,49 @@ import java.util.Optional;
 public class ServicoParaPerfil {
     private RepositorioDePublicacoes repositorioDePostagens;
     private RepositorioDePerfil repositorioDePerfil;
+    private WorldTimeClient worldTimeClient;
 
-    public void publicar(RequisicaoDePostagem requisicaoDePostagem, DadosDeCabecalhos dadosUsuario){
+    public void publicar(RequisicaoDePostagem requisicaoDePostagem, DadosDeCabecalhos dadosUsuario) {
         Publicacao publicacao = null;
-        Optional<Perfil> perfilPessoal = repositorioDePerfil.findById(dadosUsuario.getIdPerfilPessoal());
-        if(perfilPessoal.isPresent()){
+        Optional<Perfil> perfilPessoal = repositorioDePerfil.findById(dadosUsuario.getIdPerfilPrincipal());
+
+        if (perfilPessoal.isPresent()) {
             List<Perfil> perfisMencionados = new ArrayList<>();
-            requisicaoDePostagem.getIdsDePerfisMencionados().forEach(id-> {
-                Optional<Perfil> optional = repositorioDePerfil.findById(id);
-                if(optional.isPresent()){
-                    perfisMencionados.add(optional.get());
-                }
-            } );
+            if (requisicaoDePostagem.getIdsDePerfisMencionados() != null)
+                requisicaoDePostagem.getIdsDePerfisMencionados().forEach(id -> {
+                    Optional<Perfil> optional = repositorioDePerfil.findById(id);
+                    if (optional.isPresent()) {
+                        perfisMencionados.add(optional.get());
+                    }
+                });
+            LocalDateTime data = worldTimeClient.buscarHora().getDatetime().toLocalDateTime();
             publicacao = Publicacao.montar(
                     requisicaoDePostagem.getTexto(),
                     requisicaoDePostagem.getTipoPostagem(),
                     perfisMencionados,
-                    perfilPessoal.get()
-                    );
+                    perfilPessoal.get(),
+                    data
+            );
+            repositorioDePostagens.save(publicacao);
+        } else {
+            throw new MalformedParametersException();
         }
-        repositorioDePostagens.save(publicacao);
+
+    }
+
+    public Perfil criarPerfil(Usuario user) {
+        Perfil perfil = new Perfil();
+
+        perfil.setTipoPerfil(TipoPerfil.PESSOAL);
+        perfil.setUsuario(user);
+        perfil.setNome(user.getNome());
+        perfil.setVerificado(false);
+
+        return repositorioDePerfil.save(perfil);
+
+    }
+
+    public void excluirPerfil(Long usuarioId) {
+        repositorioDePerfil.deleteByUsuarioId(usuarioId);
     }
 }

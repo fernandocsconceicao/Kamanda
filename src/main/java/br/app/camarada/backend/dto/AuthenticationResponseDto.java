@@ -8,9 +8,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class AuthenticationResponseDto {
     private String token;
-    private Long totemId;
-    private Long estabelecimentoId;
-    private String accountType;
+    private String tipoConta;
     private Boolean primeiroAcesso;
     private Long usuarioId;
     private byte[] imagemPerfil;

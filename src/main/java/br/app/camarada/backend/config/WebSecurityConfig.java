@@ -60,12 +60,14 @@ public class WebSecurityConfig {
                 .csrf().disable();
         http
                 .authorizeHttpRequests()
-                .antMatchers("/totem", "/adm").hasAnyAuthority("ADMIN")
-                .antMatchers("/usuario/**", "/totem/screens/login")
-                .permitAll()
+//                .antMatchers("/totem", "/adm").hasAnyAuthority("ADMIN")
+//                .antMatchers("/usuario/**", "/perfil/**")
+//                .permitAll()
                 .anyRequest()
-                .authenticated()
+                .permitAll()
                 .and()
+//                .authenticated()
+//                .and()
                 .sessionManagement()
                 .sessionCreationPolicy(STATELESS)
                 .and()

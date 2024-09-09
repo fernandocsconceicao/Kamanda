@@ -1,6 +1,8 @@
 package br.app.camarada.backend.controladores;
 
 import br.app.camarada.backend.dto.AuthenticationResponseDto;
+import br.app.camarada.backend.dto.CredenciaisDeExclusaoDeConta;
+import br.app.camarada.backend.dto.RequisicaoDeAutenticacao;
 import br.app.camarada.backend.dto.RequisicaoRegistro;
 import br.app.camarada.backend.exception.EmailJaCadastradoException;
 import br.app.camarada.backend.servicos.ServicoParaUsuarios;
@@ -21,7 +23,6 @@ public class ControladorDeUsuarios {
     @PostMapping("/registrar")
     public ResponseEntity<AuthenticationResponseDto> registrarUsuario(@RequestBody RequisicaoRegistro dto) {
         try {
-            System.out.println("23423");
             AuthenticationResponseDto authenticationResponseDto = servicoParaUsuarios.registrarUsuario(dto);
             if (authenticationResponseDto == null) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -32,5 +33,30 @@ public class ControladorDeUsuarios {
         }
 
 
+    }
+
+    @PostMapping("/autenticar")
+    public ResponseEntity<AuthenticationResponseDto> authenticate(@RequestBody RequisicaoDeAutenticacao dto) {
+        AuthenticationResponseDto authenticate = servicoParaUsuarios.authenticate(dto);
+        return ResponseEntity.ok().body(authenticate);
+    }
+
+    @PostMapping("excluir")
+    public ResponseEntity<Void> excluirUsuario(@RequestBody CredenciaisDeExclusaoDeConta dto) {
+        try {
+            AuthenticationResponseDto authenticate = servicoParaUsuarios.authenticate(
+//                    new RequisicaoDeAutenticacao("silvioalmeida@hotmail.com", "silvioalmeida")
+                    new RequisicaoDeAutenticacao(dto.getEmail(), dto.getSenha())
+            );
+
+            if (authenticate != null) {
+                servicoParaUsuarios.excluirConta(authenticate.getUsuarioId());
+            } else {
+                return ResponseEntity.status(404).build();
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return ResponseEntity.ok().build();
     }
 }

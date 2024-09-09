@@ -9,5 +9,5 @@ import lombok.Data;
 public class DadosDeCabecalhos {
     private TipoConta tipoConta;
     private Long idUsuario;
-    private Long idPerfilPessoal;
+    private Long idPerfilPrincipal;
 }

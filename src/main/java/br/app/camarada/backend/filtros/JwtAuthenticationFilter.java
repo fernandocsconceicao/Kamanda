@@ -1,7 +1,6 @@
 package br.app.camarada.backend.filtros;
 
 
-
 import br.app.camarada.backend.entidades.Usuario;
 import br.app.camarada.backend.enums.Cabecalhos;
 import br.app.camarada.backend.servicos.JwtService;
@@ -9,7 +8,6 @@ import br.app.camarada.backend.servicos.ServicoParaUsuarios;
 import br.app.camarada.backend.utilitarios.FilterUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -21,9 +19,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import java.io.IOException;
 
 
@@ -50,6 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private FilterUtil filterUtil;
 
     @Override
+    @Transactional
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -70,15 +69,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             request.getRequestURI().equals("/usuario/esqueciasenha/enviarnovasenha")
                             ||
                             request.getRequestURI().equals("/usuario/excluir")
-                            ||
-                            request.getRequestURI().equals("/regiao/listar")
 
 
             ) {
-
                 log.info("Filtro de Autenticação- Endpoint livre");
-                Usuario userDetails = this.servicoParaUsuarios.loadUserByUsername("admin@admin.com");
 
+                Usuario userDetails = this.servicoParaUsuarios.loadUserByUsername("admin@admin.com");
                 CustomServletWrapper requisicao = adicionarHeaders(request, userDetails);
 
                 if (jwtService.isTokenValid(jwtService.gerarToken(userDetails), userDetails)) {
@@ -136,9 +132,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             httpReq.addHeader(Cabecalhos.CONTA_FINANCEIRA.getValue(), userDetails.getContaFinanceira().getId().toString());
 
 
-
         httpReq.addHeader(Cabecalhos.USUARIO.getValue(), userDetails.getId().toString());
-
+        if (userDetails.getPerfilPrincipalId() != null)
+            httpReq.addHeader(Cabecalhos.PERFIL.getValue(), userDetails.getPerfilPrincipalId().toString());
 
 
         return httpReq;
