@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class RespostaPublicacoes {
-    private List<PublicacaoDto> publicacaoDto;
+    private List<PublicacaoDto> publicacoes;
 
     public static RespostaPublicacoes montar(List<Publicacao> publicacoes){
             List<PublicacaoDto> retorno = new ArrayList<>();
