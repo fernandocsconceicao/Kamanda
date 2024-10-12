@@ -60,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             ||
                             request.getRequestURI().equals("/usuario/registrar")
                             ||
-                            request.getRequestURI().equals("/usuario/existeemail")
+                            request.getRequestURI().equals("/usuario/autenticar/existeemail")
                             ||
                             request.getRequestURI().equals("/usuario/esqueciminhasenha")
                             ||

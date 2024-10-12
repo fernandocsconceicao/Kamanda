@@ -1,9 +1,6 @@
 package br.app.camarada.backend.controladores;
 
-import br.app.camarada.backend.dto.AuthenticationResponseDto;
-import br.app.camarada.backend.dto.CredenciaisDeExclusaoDeConta;
-import br.app.camarada.backend.dto.RequisicaoDeAutenticacao;
-import br.app.camarada.backend.dto.RequisicaoRegistro;
+import br.app.camarada.backend.dto.*;
 import br.app.camarada.backend.exception.EmailJaCadastradoException;
 import br.app.camarada.backend.servicos.ServicoParaUsuarios;
 import lombok.AllArgsConstructor;
@@ -39,6 +36,11 @@ public class ControladorDeUsuarios {
     public ResponseEntity<AuthenticationResponseDto> authenticate(@RequestBody RequisicaoDeAutenticacao dto) {
         AuthenticationResponseDto authenticate = servicoParaUsuarios.authenticate(dto);
         return ResponseEntity.ok().body(authenticate);
+    }
+    @PostMapping("/autenticar/existeemail")
+    public ResponseEntity<RespostaExisteEmailCadastrado> existeEmail(@RequestBody RequisicaoExisteEmailCadastrado dto) {
+        Boolean resposta = servicoParaUsuarios.existeUsuarioCadastrado(dto.getEmail());
+        return ResponseEntity.ok().body(new RespostaExisteEmailCadastrado(resposta));
     }
 
     @PostMapping("excluir")

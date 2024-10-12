@@ -305,4 +305,9 @@ public class ServicoParaUsuarios implements UserDetailsService {
 
         repositorioDeUsuario.deleteById(idUsuario);
     }
+
+    public Boolean existeUsuarioCadastrado(String email) {
+        Usuario byEmail = repositorioDeUsuario.findByEmail(email);
+        return byEmail !=null;
+    }
 }
