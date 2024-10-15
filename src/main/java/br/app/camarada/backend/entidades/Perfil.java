@@ -26,4 +26,7 @@ public class Perfil {
     private Boolean verificado;
     @ManyToOne
     private Usuario usuario;
+    @Column(unique = true)
+    private String nomeUsuario;
+    private String telefone;
 }
