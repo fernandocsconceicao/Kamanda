@@ -77,7 +77,7 @@ public class ServicoParaPerfil {
         Perfil perfil = new Perfil();
 
         perfil.setTipoPerfil(TipoPerfil.PESSOAL);
-        perfil.setNomeUsuario(nomeUsuario);
+        perfil.setNomeUsuario(nomeUsuario.toLowerCase());
         perfil.setNome(nome);
         perfil.setTelefone(telefone);
         perfil.setVerificado(false);
