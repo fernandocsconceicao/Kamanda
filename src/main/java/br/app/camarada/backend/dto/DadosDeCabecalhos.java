@@ -10,4 +10,5 @@ public class DadosDeCabecalhos {
     private TipoConta tipoConta;
     private Long idUsuario;
     private Long idPerfilPrincipal;
+    private String email;
 }

@@ -1,6 +1,7 @@
 package br.app.camarada.backend;
 
 import br.app.camarada.backend.dto.RequisicaoRegistro;
+import br.app.camarada.backend.dto.ServicoParaPerfil;
 import br.app.camarada.backend.entidades.Caixa;
 import br.app.camarada.backend.enums.TipoConta;
 import br.app.camarada.backend.repositorios.CaixaRepositorio;

@@ -1,19 +1,15 @@
 package br.app.camarada.backend.controladores;
 
-import br.app.camarada.backend.dto.DadosDeCabecalhos;
-import br.app.camarada.backend.dto.RequisicaoCriacaoPerfil;
-import br.app.camarada.backend.dto.ServicoParaPerfil;
+import br.app.camarada.backend.dto.*;
 import br.app.camarada.backend.dto.publicacao.req.RequisicaoDePostagem;
 import br.app.camarada.backend.enums.Cabecalhos;
 import br.app.camarada.backend.exception.NomeDeUsuarioExistente;
 import br.app.camarada.backend.filtros.CustomServletWrapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/perfil")
@@ -33,14 +29,20 @@ public class ControladorDePerfil {
             return ResponseEntity.status(409).build();
         }
     }
-
+    @GetMapping("/obter")
+    public ResponseEntity<PerfilDto> obter(CustomServletWrapper request) {
+        log.info("Publicação - usuario - " + request.getHeader(Cabecalhos.USUARIO.getValue()));
+        PerfilDto perfilDto = servicoParaPerfil.obterPerfil(Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue())));
+        return ResponseEntity.ok().body(perfilDto);
+    }
     @PostMapping("/publicar")
-    public ResponseEntity<Void> publicar(@RequestBody RequisicaoDePostagem req, CustomServletWrapper request) {
+    public ResponseEntity<Void> publicar(@RequestBody RequisicaoDePostagem req, CustomServletWrapper request) throws JsonProcessingException {
         log.info("Publicação - usuario - " + request.getHeader(Cabecalhos.USUARIO.getValue()));
         servicoParaPerfil.publicar(
                 req,
                 DadosDeCabecalhos.builder()
                         .idPerfilPrincipal(Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue()).toString()))
+                        .email(request.getHeader(Cabecalhos.EMAIL.getValue()))
                         .build()
         );
         return ResponseEntity.ok().build();

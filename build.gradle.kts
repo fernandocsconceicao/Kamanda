@@ -1,7 +1,10 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
 	java
 	id("org.springframework.boot") version "2.7.9"
 	id("io.spring.dependency-management") version "1.0.15.RELEASE"
+    kotlin("jvm")
 }
 
 group = "br.com.camarada"
@@ -41,9 +44,18 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
 	testImplementation ("org.springframework.security:spring-security-test")
 	implementation ("org.springframework.boot:spring-boot-starter-mail")
+    implementation(kotlin("stdlib-jdk8"))
 
 }
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    jvmTarget = "17"
+}
+val compileTestKotlin: KotlinCompile by tasks
+compileTestKotlin.kotlinOptions {
+    jvmTarget = "17"
 }

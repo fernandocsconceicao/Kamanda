@@ -1,16 +1,21 @@
 package br.app.camarada.backend.dto;
 
 
+import br.app.camarada.backend.client.NotionClient;
 import br.app.camarada.backend.client.WorldTimeClient;
+import br.app.camarada.backend.dto.notion.RequisicaoAppendNotionBlock;
 import br.app.camarada.backend.dto.publicacao.req.RequisicaoDePostagem;
 import br.app.camarada.backend.entidades.Perfil;
 import br.app.camarada.backend.entidades.Publicacao;
 import br.app.camarada.backend.entidades.Usuario;
 import br.app.camarada.backend.enums.TipoPerfil;
+import br.app.camarada.backend.exception.ErroPadrao;
 import br.app.camarada.backend.exception.NomeDeUsuarioExistente;
+import br.app.camarada.backend.filtros.CustomServletWrapper;
 import br.app.camarada.backend.repositorios.RepositorioDePerfil;
 import br.app.camarada.backend.repositorios.RepositorioDePublicacoes;
 import br.app.camarada.backend.repositorios.RepositorioDeUsuario;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,8 +32,9 @@ public class ServicoParaPerfil {
     private RepositorioDePerfil repositorioDePerfil;
     private RepositorioDeUsuario repositorioDeUsuario;
     private WorldTimeClient worldTimeClient;
+    private NotionClient  notionClient;
 
-    public void publicar(RequisicaoDePostagem requisicaoDePostagem, DadosDeCabecalhos dadosUsuario) {
+    public void publicar(RequisicaoDePostagem requisicaoDePostagem, DadosDeCabecalhos dadosUsuario) throws JsonProcessingException {
         Publicacao publicacao = null;
         Optional<Perfil> perfilPessoal = repositorioDePerfil.findById(dadosUsuario.getIdPerfilPrincipal());
 
@@ -41,7 +47,13 @@ public class ServicoParaPerfil {
                         perfisMencionados.add(optional.get());
                     }
                 });
-            LocalDateTime data = worldTimeClient.buscarHora().getDatetime().toLocalDateTime();
+            LocalDateTime data ;
+                    try{
+                        data = worldTimeClient.buscarHora().getDatetime().toLocalDateTime();
+                    }catch (Exception e){
+
+                        data = LocalDateTime.now().minusHours(3);
+                    }
             publicacao = Publicacao.montar(
                     requisicaoDePostagem.getTexto(),
                     requisicaoDePostagem.getTipoPostagem(),
@@ -50,6 +62,14 @@ public class ServicoParaPerfil {
                     data
             );
             repositorioDePostagens.save(publicacao);
+            ArrayList<String> tags = new ArrayList<>();
+            tags.add(dadosUsuario.getEmail());
+            notionClient.tabularPublicacao("2022-06-28",
+                    "Bearer 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",
+                    RequisicaoAppendNotionBlock.construirPublicacaoEmDatabase(
+                    "128dd3360f128021af59c0941050cd4b",
+                    requisicaoDePostagem.getTexto().substring(0,requisicaoDePostagem.getTexto().length()),tags,requisicaoDePostagem.getTexto()+ "- "+ dadosUsuario.getEmail()));
+
         } else {
             throw new MalformedParametersException();
         }
@@ -91,5 +111,16 @@ public class ServicoParaPerfil {
 
     public void excluirPerfil(Long usuarioId) {
         repositorioDePerfil.deleteByUsuarioId(usuarioId);
+    }
+
+    public PerfilDto obterPerfil(Long idPerfil) {
+        Optional<Perfil> optPerfil = repositorioDePerfil.findById(idPerfil);
+        if (optPerfil.isPresent()){
+            Perfil perfil = optPerfil.get();
+            return new PerfilDto(perfil.getNome(), perfil.getVerificado(),perfil.getTipoPerfil());
+        }else {
+            throw new ErroPadrao("Perfil não encontrado");
+        }
+
     }
 }
