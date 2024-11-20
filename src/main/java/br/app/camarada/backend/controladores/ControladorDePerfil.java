@@ -6,6 +6,7 @@ import br.app.camarada.backend.enums.Cabecalhos;
 import br.app.camarada.backend.exception.NomeDeUsuarioExistente;
 import br.app.camarada.backend.filtros.CustomServletWrapper;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +31,12 @@ public class ControladorDePerfil {
         }
     }
     @GetMapping("/obter")
-    public ResponseEntity<PerfilDto> obter(CustomServletWrapper request) {
+    public ResponseEntity<PerfilDto> obter(CustomServletWrapper request) throws JsonProcessingException {
         log.info("Publicação - usuario - " + request.getHeader(Cabecalhos.USUARIO.getValue()));
         PerfilDto perfilDto = servicoParaPerfil.obterPerfil(Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue())));
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(perfilDto);
+        System.out.println(json);
         return ResponseEntity.ok().body(perfilDto);
     }
     @PostMapping("/publicar")

@@ -117,7 +117,7 @@ public class ServicoParaPerfil {
         Optional<Perfil> optPerfil = repositorioDePerfil.findById(idPerfil);
         if (optPerfil.isPresent()){
             Perfil perfil = optPerfil.get();
-            return new PerfilDto(perfil.getNome(), perfil.getVerificado(),perfil.getTipoPerfil());
+            return PerfilDto.montar(perfil);
         }else {
             throw new ErroPadrao("Perfil não encontrado");
         }
