@@ -39,4 +39,10 @@ public class Perfil {
     private Set<RotulosPerfil> rotulosEscolhidos = new HashSet<>();
     private Integer idade;
     private String resumo;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] imagem;
+    @Lob
+    @Basic(fetch = FetchType.LAZY)
+    private byte[] imagemFundo;
 }

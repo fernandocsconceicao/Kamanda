@@ -17,6 +17,7 @@ public class Publicacao implements Conteudo {
     @Id
     @GeneratedValue
     private Long id;
+    @Column(columnDefinition = "VARCHAR(15000) CHARACTER SET latin1 COLLATE latin1_swedish_ci")
     private String texto;
     @Enumerated
     private TipoPostagem tipoPostagem;
@@ -25,16 +26,18 @@ public class Publicacao implements Conteudo {
     @ManyToOne
     private Perfil autorPrincipal;
     private LocalDateTime localDateTime;
-
+    @Column(columnDefinition = "VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci")
+    private String resumo;
 
     public static Publicacao montar(String texto,
                                     TipoPostagem tipo,
                                     List<Perfil> perfisMencionados,
                                     Perfil autorPrincipal,
-                                    LocalDateTime data) {
+                                    LocalDateTime data,
+                                    String resumo) {
 
 
-        return new Publicacao(null, texto, tipo, perfisMencionados, autorPrincipal,data);
+        return new Publicacao(null, texto, tipo, perfisMencionados, autorPrincipal,data,resumo);
     }
 
     @Override

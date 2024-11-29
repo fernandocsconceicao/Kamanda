@@ -16,7 +16,11 @@ public class RespostaPublicacoes {
 
     public static RespostaPublicacoes montar(List<Publicacao> publicacoes){
             List<PublicacaoDto> retorno = new ArrayList<>();
-            publicacoes.forEach( p -> retorno.add(new PublicacaoDto(p.obtertextoDaPostagem(),p.obterTipoDeConteudo(), PerfilDto.montar(p.obterAutorPrincipal()),p.getPerfisMencionados())));
+            publicacoes.forEach( p -> retorno.add(new PublicacaoDto(p.obtertextoDaPostagem(),
+                    p.obterTipoDeConteudo(),
+                    PerfilDto.montar(p.obterAutorPrincipal()),
+                    p.getPerfisMencionados(),
+                    p.getResumo())));
 
         return new RespostaPublicacoes(retorno);
     }

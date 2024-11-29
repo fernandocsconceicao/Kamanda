@@ -59,7 +59,8 @@ public class ServicoParaPerfil {
                     requisicaoDePostagem.getTipoPostagem(),
                     perfisMencionados,
                     perfilPessoal.get(),
-                    data
+                    data,
+                    requisicaoDePostagem.getResumo()
             );
             repositorioDePostagens.save(publicacao);
             ArrayList<String> tags = new ArrayList<>();
@@ -87,8 +88,8 @@ public class ServicoParaPerfil {
         return repositorioDePerfil.save(perfil);
 
     }
-    public Perfil atualizarPerfil( String nomeUsuario, String telefone, String nome,Long idUsuario) throws NomeDeUsuarioExistente {
-        Optional<Perfil> optUsuario = repositorioDePerfil.findByNomeUsuario(nomeUsuario);
+    public Perfil atualizarPerfil( RequisicaoCriacaoPerfil dto,Long idUsuario) throws NomeDeUsuarioExistente {
+        Optional<Perfil> optUsuario = repositorioDePerfil.findByNomeUsuario(dto.getNomeUsuario());
 
         if(optUsuario.isPresent()){
             throw new NomeDeUsuarioExistente("Nome de usuario já está sendo utilizado");
@@ -96,11 +97,19 @@ public class ServicoParaPerfil {
 
         Perfil perfil = new Perfil();
 
+        if(dto.getNome()!= null && !dto.getNome().isBlank() && !dto.getNome().equals(perfil.getNome())){
+            perfil.setNome(dto.getNome());
+        }
+        if(dto.getTelefone()!= null && !dto.getTelefone().isBlank() && !dto.getTelefone().equals(perfil.getTelefone())){
+            perfil.setTelefone(dto.getTelefone());
+        }
         perfil.setTipoPerfil(TipoPerfil.PESSOAL);
-        perfil.setNomeUsuario(nomeUsuario.toLowerCase());
-        perfil.setNome(nome);
-        perfil.setTelefone(telefone);
+        perfil.setNomeUsuario(dto.getNomeUsuario().toLowerCase());
+        perfil.setNome(dto.getNome());
+        perfil.setTelefone(dto.getTelefone());
         perfil.setVerificado(false);
+        perfil.setImagem(dto.getImagemPerfil());
+        perfil.setImagemFundo(dto.getImagemPerfil());
         repositorioDePerfil.save(perfil);
         Usuario usuario= repositorioDeUsuario.findById(idUsuario).get();
         usuario.setPrimeiroAcesso(false);

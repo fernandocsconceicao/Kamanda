@@ -9,4 +9,5 @@ public class RequisicaoCriacaoPerfil {
     private String nomeUsuario;
     private String nome;
     private String telefone;
+    private byte[] imagemPerfil;
 }

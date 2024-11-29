@@ -14,4 +14,5 @@ public class PublicacaoDto {
     private TipoPostagem tipoPostagem;
     private PerfilDto autorPrincipal;
     private List<Perfil> mencionados;
+    private String resumo;
 }

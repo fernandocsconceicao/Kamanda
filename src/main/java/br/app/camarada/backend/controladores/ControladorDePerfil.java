@@ -19,12 +19,21 @@ import org.springframework.web.bind.annotation.*;
 public class ControladorDePerfil {
     private ServicoParaPerfil servicoParaPerfil;
 
-
     @PostMapping("criarperfil")
     public ResponseEntity<Void> criarPerfil(@RequestBody RequisicaoCriacaoPerfil dto, CustomServletWrapper request) {
         try {
             long l = Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue()));
-            servicoParaPerfil.atualizarPerfil(dto.getNome(), dto.getTelefone(), dto.getNomeUsuario(),l);
+            servicoParaPerfil.atualizarPerfil(dto,l);
+            return ResponseEntity.status(200).build();
+        } catch (NomeDeUsuarioExistente e) {
+            return ResponseEntity.status(409).build();
+        }
+    }
+    @PostMapping("editar")
+    public ResponseEntity<Void> editarPerfil(@RequestBody RequisicaoCriacaoPerfil dto, CustomServletWrapper request) {
+        try {
+            long l = Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue()));
+            servicoParaPerfil.atualizarPerfil(dto,l);
             return ResponseEntity.status(200).build();
         } catch (NomeDeUsuarioExistente e) {
             return ResponseEntity.status(409).build();

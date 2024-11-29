@@ -12,5 +12,6 @@ public class RequisicaoDePostagem {
     private TipoPostagem tipoPostagem;
     @Nullable
     private List<Long> idsDePerfisMencionados;
+    private String resumo;
 
 }
