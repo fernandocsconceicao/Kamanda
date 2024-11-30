@@ -11,11 +11,12 @@ import br.app.camarada.backend.entidades.Usuario;
 import br.app.camarada.backend.enums.TipoPerfil;
 import br.app.camarada.backend.exception.ErroPadrao;
 import br.app.camarada.backend.exception.NomeDeUsuarioExistente;
-import br.app.camarada.backend.filtros.CustomServletWrapper;
 import br.app.camarada.backend.repositorios.RepositorioDePerfil;
 import br.app.camarada.backend.repositorios.RepositorioDePublicacoes;
 import br.app.camarada.backend.repositorios.RepositorioDeUsuario;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -28,11 +29,11 @@ import java.util.Optional;
 @Service
 @AllArgsConstructor
 public class ServicoParaPerfil {
-    private RepositorioDePublicacoes repositorioDePostagens;
+    private RepositorioDePublicacoes repositorioDePublicacoes;
     private RepositorioDePerfil repositorioDePerfil;
     private RepositorioDeUsuario repositorioDeUsuario;
     private WorldTimeClient worldTimeClient;
-    private NotionClient  notionClient;
+    private NotionClient notionClient;
 
     public void publicar(RequisicaoDePostagem requisicaoDePostagem, DadosDeCabecalhos dadosUsuario) throws JsonProcessingException {
         Publicacao publicacao = null;
@@ -47,13 +48,13 @@ public class ServicoParaPerfil {
                         perfisMencionados.add(optional.get());
                     }
                 });
-            LocalDateTime data ;
-                    try{
-                        data = worldTimeClient.buscarHora().getDatetime().toLocalDateTime();
-                    }catch (Exception e){
+            LocalDateTime data;
+            try {
+                data = worldTimeClient.buscarHora().getDatetime().toLocalDateTime();
+            } catch (Exception e) {
 
-                        data = LocalDateTime.now().minusHours(3);
-                    }
+                data = LocalDateTime.now().minusHours(3);
+            }
             publicacao = Publicacao.montar(
                     requisicaoDePostagem.getTexto(),
                     requisicaoDePostagem.getTipoPostagem(),
@@ -61,14 +62,14 @@ public class ServicoParaPerfil {
                     data,
                     requisicaoDePostagem.getResumo()
             );
-            repositorioDePostagens.save(publicacao);
+            repositorioDePublicacoes.save(publicacao);
             ArrayList<String> tags = new ArrayList<>();
             tags.add(dadosUsuario.getEmail());
             notionClient.tabularPublicacao("2022-06-28",
                     "Bearer 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",
                     RequisicaoAppendNotionBlock.construirPublicacaoEmDatabase(
-                    "128dd3360f128021af59c0941050cd4b",
-                    requisicaoDePostagem.getTexto().substring(0,requisicaoDePostagem.getTexto().length()),tags,requisicaoDePostagem.getTexto()+ "- "+ dadosUsuario.getEmail()));
+                            "128dd3360f128021af59c0941050cd4b",
+                            requisicaoDePostagem.getTexto().substring(0, requisicaoDePostagem.getTexto().length()), tags, requisicaoDePostagem.getTexto() + "- " + dadosUsuario.getEmail()));
 
         } else {
             throw new MalformedParametersException();
@@ -87,19 +88,20 @@ public class ServicoParaPerfil {
         return repositorioDePerfil.save(perfil);
 
     }
-    public Perfil atualizarPerfil( RequisicaoCriacaoPerfil dto,Long idUsuario) throws NomeDeUsuarioExistente {
+
+    public Perfil atualizarPerfil(RequisicaoCriacaoPerfil dto, Long idUsuario) throws NomeDeUsuarioExistente {
         Optional<Perfil> optUsuario = repositorioDePerfil.findByNomeUsuario(dto.getNomeUsuario());
 
-        if(optUsuario.isPresent()){
+        if (optUsuario.isPresent()) {
             throw new NomeDeUsuarioExistente("Nome de usuario já está sendo utilizado");
         }
 
         Perfil perfil = new Perfil();
 
-        if(dto.getNome()!= null && !dto.getNome().isBlank() && !dto.getNome().equals(perfil.getNome())){
+        if (dto.getNome() != null && !dto.getNome().isBlank() && !dto.getNome().equals(perfil.getNome())) {
             perfil.setNome(dto.getNome());
         }
-        if(dto.getTelefone()!= null && !dto.getTelefone().isBlank() && !dto.getTelefone().equals(perfil.getTelefone())){
+        if (dto.getTelefone() != null && !dto.getTelefone().isBlank() && !dto.getTelefone().equals(perfil.getTelefone())) {
             perfil.setTelefone(dto.getTelefone());
         }
         perfil.setTipoPerfil(TipoPerfil.PESSOAL);
@@ -110,7 +112,7 @@ public class ServicoParaPerfil {
         perfil.setImagem(dto.getImagemPerfil());
         perfil.setImagemFundo(dto.getImagemPerfil());
         repositorioDePerfil.save(perfil);
-        Usuario usuario= repositorioDeUsuario.findById(idUsuario).get();
+        Usuario usuario = repositorioDeUsuario.findById(idUsuario).get();
         usuario.setPrimeiroAcesso(false);
         repositorioDeUsuario.save(usuario);
 
@@ -123,12 +125,34 @@ public class ServicoParaPerfil {
 
     public PerfilDto obterPerfil(Long idPerfil) {
         Optional<Perfil> optPerfil = repositorioDePerfil.findById(idPerfil);
-        if (optPerfil.isPresent()){
+        if (optPerfil.isPresent()) {
             Perfil perfil = optPerfil.get();
             return PerfilDto.montar(perfil);
-        }else {
+        } else {
             throw new ErroPadrao("Perfil não encontrado");
         }
+
+    }
+
+    public void adicionarABiblioteca(Long idPublicacao, Long idPerfil) throws JsonProcessingException {
+        Perfil perfil = repositorioDePerfil.findById(idPerfil).get();
+
+        String minhaBibliotecaJson = perfil.getMinhaBibliotecaJson();
+        ObjectMapper objMapper = new ObjectMapper();
+        List<Long> idsBiblioteca;
+        if (minhaBibliotecaJson == null) {
+            idsBiblioteca = new ArrayList<>();
+        } else {
+            idsBiblioteca = objMapper.readValue(minhaBibliotecaJson, new TypeReference<List<Long>>() {
+            });
+        }
+
+        if (repositorioDePublicacoes.findById(idPublicacao).isPresent()) {
+            idsBiblioteca.add(idPublicacao);
+            perfil.setMinhaBibliotecaJson(objMapper.writeValueAsString(idsBiblioteca));
+            repositorioDePerfil.save(perfil);
+        }
+
 
     }
 }

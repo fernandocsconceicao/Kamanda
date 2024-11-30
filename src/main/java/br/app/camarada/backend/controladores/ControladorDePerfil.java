@@ -60,4 +60,11 @@ public class ControladorDePerfil {
         );
         return ResponseEntity.ok().build();
     }
+    @PostMapping("/adicionarabiblioteca")
+    public ResponseEntity<Void> adicionarABiblioteca(@RequestBody RequisicaoAdicionarABiblioteca req, CustomServletWrapper request) throws JsonProcessingException {
+        log.info("Publicação - usuario - " + request.getHeader(Cabecalhos.USUARIO.getValue()));
+        servicoParaPerfil.adicionarABiblioteca(req.getIdPublicacao(),Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue()).toString()));
+
+        return ResponseEntity.ok().build();
+    }
 }

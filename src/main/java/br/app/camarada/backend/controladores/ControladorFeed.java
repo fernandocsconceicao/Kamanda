@@ -24,7 +24,7 @@ public class ControladorFeed {
         return ResponseEntity.ok().body(RespostaPublicacoes.montarPublicacaoReduzida(publicacoes));
     }
     @PostMapping("obterpublicacao")
-    public ResponseEntity<PublicacaoDto> buscarFeed(@RequestBody RequisicaoParaObterPublicacao dto, CustomServletWrapper request){
+    public ResponseEntity<PublicacaoDto> obterPublicacao(@RequestBody RequisicaoParaObterPublicacao dto, CustomServletWrapper request){
         System.out.println("fsd");
        PublicacaoDto publicacao = servicoParaFeed.obterPublicacao(dto);
         return ResponseEntity.ok().body(publicacao);

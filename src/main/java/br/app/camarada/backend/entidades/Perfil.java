@@ -18,7 +18,6 @@ public class Perfil {
     @GeneratedValue
     @Id
     private Long id;
-
     @ManyToMany
     private List<Publicacao> publicacao;
     @Enumerated
@@ -32,6 +31,7 @@ public class Perfil {
     @Column(unique = true)
     private String nomeUsuario;
     private String telefone;
+
     @ElementCollection(targetClass = RotulosPerfil.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "perfil_rotulos", joinColumns = @JoinColumn(name = "perfil_id"))
@@ -42,7 +42,11 @@ public class Perfil {
     @Lob
     @Basic(fetch = FetchType.LAZY)
     private byte[] imagem;
+
     @Lob
     @Basic(fetch = FetchType.LAZY)
     private byte[] imagemFundo;
+
+    private String minhaBibliotecaJson;
+
 }
