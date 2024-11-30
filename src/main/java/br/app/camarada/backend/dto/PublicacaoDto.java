@@ -10,9 +10,10 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class PublicacaoDto {
-    private String texto;
+    private Long id;
     private TipoPostagem tipoPostagem;
     private PerfilDto autorPrincipal;
-    private List<Perfil> mencionados;
     private String resumo;
+    private String data;
+    private String texto;
 }

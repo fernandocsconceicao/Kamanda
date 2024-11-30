@@ -57,7 +57,6 @@ public class ServicoParaPerfil {
             publicacao = Publicacao.montar(
                     requisicaoDePostagem.getTexto(),
                     requisicaoDePostagem.getTipoPostagem(),
-                    perfisMencionados,
                     perfilPessoal.get(),
                     data,
                     requisicaoDePostagem.getResumo()

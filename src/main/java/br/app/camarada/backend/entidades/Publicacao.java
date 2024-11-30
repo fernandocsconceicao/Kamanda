@@ -21,23 +21,18 @@ public class Publicacao implements Conteudo {
     private String texto;
     @Enumerated
     private TipoPostagem tipoPostagem;
-    @ManyToMany
-    private List<Perfil> perfisMencionados;
     @ManyToOne
     private Perfil autorPrincipal;
-    private LocalDateTime localDateTime;
+    private LocalDateTime data;
     @Column(columnDefinition = "VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci")
     private String resumo;
 
     public static Publicacao montar(String texto,
                                     TipoPostagem tipo,
-                                    List<Perfil> perfisMencionados,
                                     Perfil autorPrincipal,
                                     LocalDateTime data,
                                     String resumo) {
-
-
-        return new Publicacao(null, texto, tipo, perfisMencionados, autorPrincipal,data,resumo);
+        return new Publicacao(null, texto, tipo, autorPrincipal,data,resumo);
     }
 
     @Override

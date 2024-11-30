@@ -14,13 +14,17 @@ import java.util.List;
 public class RespostaPublicacoes {
     private List<PublicacaoDto> publicacoes;
 
-    public static RespostaPublicacoes montar(List<Publicacao> publicacoes){
-            List<PublicacaoDto> retorno = new ArrayList<>();
-            publicacoes.forEach( p -> retorno.add(new PublicacaoDto(p.obtertextoDaPostagem(),
-                    p.obterTipoDeConteudo(),
-                    PerfilDto.montar(p.obterAutorPrincipal()),
-                    p.getPerfisMencionados(),
-                    p.getResumo())));
+    public static RespostaPublicacoes montarPublicacaoReduzida(List<Publicacao> publicacoes) {
+        List<PublicacaoDto> retorno = new ArrayList<>();
+        publicacoes.forEach(p -> retorno.add(new PublicacaoDto(p.getId(),
+                                p.obterTipoDeConteudo(),
+                                PerfilDto.montar(p.obterAutorPrincipal()),
+                                p.getResumo(),
+                                "28-11-2024",
+                                null
+                        )
+                )
+        );
 
         return new RespostaPublicacoes(retorno);
     }

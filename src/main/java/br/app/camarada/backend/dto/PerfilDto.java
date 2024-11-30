@@ -21,6 +21,7 @@ public class PerfilDto {
     private Boolean verificado;
     private TipoPerfil tipoPerfil;
     private List<BioPerfilDto> bio;
+    private String nomeUsuario;
 
     public static PerfilDto montar(Perfil perfil) {
         ArrayList<BioPerfilDto> bio = new ArrayList<>();
@@ -71,6 +72,6 @@ public class PerfilDto {
                             rotulos
                     ));
         }
-        return new PerfilDto(perfil.getNome(), perfil.getVerificado(), perfil.getTipoPerfil(), bio);
+        return new PerfilDto(perfil.getNome(), perfil.getVerificado(), perfil.getTipoPerfil(), bio, perfil.getNomeUsuario());
     }
 }
