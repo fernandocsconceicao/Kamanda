@@ -1,8 +1,12 @@
 package br.app.camarada.backend.controladores;
 
 import br.app.camarada.backend.dto.*;
+import br.app.camarada.backend.enums.Cabecalhos;
 import br.app.camarada.backend.exception.EmailJaCadastradoException;
+import br.app.camarada.backend.filtros.CustomServletWrapper;
+import br.app.camarada.backend.servicos.ServicoDeAdministracao;
 import br.app.camarada.backend.servicos.ServicoParaUsuarios;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +20,18 @@ import org.springframework.web.bind.annotation.RestController;
 @AllArgsConstructor
 public class ControladorDeUsuarios {
     private ServicoParaUsuarios servicoParaUsuarios;
+    private ServicoDeAdministracao servicoDeAdministracao;
+    @PostMapping("/denunciar")
+    public ResponseEntity<AuthenticationResponseDto> denunciar(@RequestBody RequisicaoDenuncia dto, CustomServletWrapper request) throws JsonProcessingException {
+          servicoDeAdministracao.denuncia(dto,
+                    DadosDeCabecalhos.builder()
+                            .idPerfilPrincipal(Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue()).toString()))
+                            .email(request.getHeader(Cabecalhos.EMAIL.getValue()))
+                            .build());
+
+        return ResponseEntity.ok().build();
+
+    }
 
     @PostMapping("/registrar")
     public ResponseEntity<AuthenticationResponseDto> registrarUsuario(@RequestBody RequisicaoRegistro dto) {

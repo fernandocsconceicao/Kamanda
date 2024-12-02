@@ -46,4 +46,48 @@ public class RequisicaoAppendNotionBlock {
         System.out.println("Resposta formatada: " + formattedJson);
         return new RequisicaoAppendNotionBlock(notionParent, notionProperties, notionChildrenList);
     }
+    public static RequisicaoAppendNotionBlock contruirDenuncia(String database, String titulo, List<String> tags, String descricao, Long idPublicacao,Long idUsuarioAutor, String nomeAutor) throws JsonProcessingException {
+        ArrayList<NotionTagName> notionTagNames = new ArrayList<>();
+        tags.forEach(tag -> {
+            notionTagNames.add(new NotionTagName(tag));
+        });
+
+        ArrayList<NotionChildren> notionChildrenList = new ArrayList<>();
+
+        ArrayList<NotionRichText> notionRichTexts = new ArrayList<>();
+        notionRichTexts.add(new NotionRichText("text", new NotionText("Denuncia de autor: "+nomeAutor +
+                ", id: " +idUsuarioAutor + ". Referente a sua publicação de id :" + idPublicacao)));
+
+
+        ArrayList<NotionRichText> notionRichTexts2 = new ArrayList<>();
+        notionRichTexts2.add(new NotionRichText("text", new NotionText(descricao)));
+        NotionParent notionParent = new NotionParent(database);
+
+        ArrayList<NotionTitleObject> notionTitleObjects = new ArrayList<>();
+        notionTitleObjects.add(new NotionTitleObject(new NotionText(titulo)));
+
+        ArrayList<NotionTitleObject> notionTitleObjects2 = new ArrayList<>();
+        notionTitleObjects2.add(new NotionTitleObject(new NotionText(titulo)));
+
+        NotionProperties notionProperties = new NotionProperties(new NotionTitle(notionTitleObjects), new NotionTags(notionTagNames));
+
+        NotionChildren notionChildren = new NotionChildren(
+                "block",
+                NotionBlockTypes.PARAGRAFO.obterValor(),
+                new NotionParagraph(notionRichTexts)
+
+
+        );
+        notionChildrenList.add(notionChildren);
+        NotionChildren notionChildren2 = new NotionChildren(
+                "block",
+                NotionBlockTypes.PARAGRAFO.obterValor(),
+                new NotionParagraph(notionRichTexts2)
+
+
+        );
+        notionChildrenList.add(notionChildren2);
+        System.out.println("Criada tabulação no Notion");
+        return new RequisicaoAppendNotionBlock(notionParent, notionProperties, notionChildrenList);
+    }
 }

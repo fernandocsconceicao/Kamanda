@@ -18,6 +18,12 @@ public interface NotionClient {
             @RequestHeader(value = "Authorization") String notionToken,
             @RequestBody RequisicaoAppendNotionBlock dto);
     @RequestMapping(method = RequestMethod.POST, value = "v1/pages")
+    RespostaHoraAtualWorldTime tabularDenuncia(
+
+            @RequestHeader(value = "Notion-Version") String notionVersion,
+            @RequestHeader(value = "Authorization") String notionToken,
+            @RequestBody RequisicaoAppendNotionBlock dto);
+    @RequestMapping(method = RequestMethod.POST, value = "v1/pages")
     RespostaHoraAtualWorldTime tabularPublicacaoJson(
 
             @RequestHeader(value = "Notion-Version") String notionVersion,

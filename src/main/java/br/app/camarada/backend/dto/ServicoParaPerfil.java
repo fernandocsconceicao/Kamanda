@@ -69,7 +69,10 @@ public class ServicoParaPerfil {
                     "Bearer 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",
                     RequisicaoAppendNotionBlock.construirPublicacaoEmDatabase(
                             "128dd3360f128021af59c0941050cd4b",
-                            requisicaoDePostagem.getTexto().substring(0, requisicaoDePostagem.getTexto().length()), tags, requisicaoDePostagem.getTexto() + "- " + dadosUsuario.getEmail()));
+                            requisicaoDePostagem.getTexto().substring(0,
+                                    requisicaoDePostagem.getTexto().length()),
+                            tags,
+                            requisicaoDePostagem.getTexto() + "- " + dadosUsuario.getEmail()));
 
         } else {
             throw new MalformedParametersException();
