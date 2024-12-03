@@ -26,12 +26,11 @@ public class ControladorDeTelas {
     public ResponseEntity<TelaRecargaDeSaldo> obterTelaRegargaDeSaldo(CustomServletWrapper request) {
         Long contaFinanceira = Long.parseLong(request.getHeader(Cabecalhos.CONTA_FINANCEIRA.getValue()));
         System.out.println(contaFinanceira);
-        if ( contaFinanceira == null ){
 
-        }
         BigDecimal saldo = servicoDePagamentos.obterSaldo(contaFinanceira);
 
         return ResponseEntity.ok().body(new TelaRecargaDeSaldo(saldo, StringUtils.formatPrice(saldo)));
     }
+
 
 }

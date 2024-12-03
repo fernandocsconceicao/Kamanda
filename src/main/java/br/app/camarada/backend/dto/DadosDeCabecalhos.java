@@ -11,4 +11,5 @@ public class DadosDeCabecalhos {
     private Long idUsuario;
     private Long idPerfilPrincipal;
     private String email;
+    private Boolean primeiroAcesso;
 }

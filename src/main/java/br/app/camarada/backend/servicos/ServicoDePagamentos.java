@@ -64,7 +64,6 @@ public class ServicoDePagamentos {
                                                     Long usuarioId, Long carrinhoId, Long regiaoId,
                                                     Long clienteId, Long idEstabelecimento) {
 
-        LocalDateTime hora = worldTimeClient.buscarHora().getDatetime().toLocalDateTime();
 
         if (dto.getTipoServico() == TipoServico.ENTREGA) {
 

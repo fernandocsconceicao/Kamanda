@@ -5,6 +5,7 @@ import br.app.camarada.backend.enums.Cabecalhos;
 import br.app.camarada.backend.exception.EmailJaCadastradoException;
 import br.app.camarada.backend.filtros.CustomServletWrapper;
 import br.app.camarada.backend.servicos.ServicoDeAdministracao;
+import br.app.camarada.backend.servicos.ServicoDePagamentos;
 import br.app.camarada.backend.servicos.ServicoParaUsuarios;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.AllArgsConstructor;
@@ -49,8 +50,11 @@ public class ControladorDeUsuarios {
     }
 
     @PostMapping("/autenticar")
-    public ResponseEntity<AuthenticationResponseDto> authenticate(@RequestBody RequisicaoDeAutenticacao dto) {
+    public ResponseEntity<AuthenticationResponseDto> authenticate(@RequestBody RequisicaoDeAutenticacao dto
+            , CustomServletWrapper request) {
+
         AuthenticationResponseDto authenticate = servicoParaUsuarios.authenticate(dto);
+
         return ResponseEntity.ok().body(authenticate);
     }
     @PostMapping("/autenticar/existeemail")
