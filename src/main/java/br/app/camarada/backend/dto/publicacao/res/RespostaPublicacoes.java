@@ -28,18 +28,20 @@ public class RespostaPublicacoes {
                                                                String erroTitulo,
                                                                String erroDescricao,
                                                                TipoErro tipoErro,
-                                                               TipoServico tipoServico) {
+                                                               TipoServico tipoServico
+                                                               ) {
         List<PublicacaoDto> retorno = new ArrayList<>();
         publicacoes.forEach(p -> retorno.add(new PublicacaoDto(p.getId(),
                                 p.obterTipoDeConteudo(),
                                 PerfilDto.montar(p.obterAutorPrincipal()),
                                 p.getResumo(),
                                 "28-11-2024",
-                                null
+                                null,
+                                p.getImagem()
                         )
                 )
         );
 
-        return new RespostaPublicacoes(retorno,pagamentoPendente,codigo,erroTitulo,erroDescricao,tipoErro,tipoServico);
+        return new RespostaPublicacoes(retorno, pagamentoPendente, codigo, erroTitulo, erroDescricao, tipoErro, tipoServico);
     }
 }

@@ -11,6 +11,8 @@ import br.app.camarada.backend.enums.Cabecalhos;
 import br.app.camarada.backend.filtros.CustomServletWrapper;
 import br.app.camarada.backend.servicos.ServicoDePagamentos;
 import br.app.camarada.backend.servicos.ServicoParaFeed;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +27,7 @@ public class ControladorFeed {
     private ServicoDePagamentos servicoDePagamentos;
 
     @GetMapping("obter")
-    public ResponseEntity<RespostaPublicacoes> buscarFeed(CustomServletWrapper request){
+    public ResponseEntity<RespostaPublicacoes> buscarFeed(CustomServletWrapper request) throws JsonProcessingException {
         DadosDeCabecalhos dadosDeCabecalhos =  DadosDeCabecalhos.builder()
                 .idPerfilPrincipal(Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue()).toString()))
                 .email(request.getHeader(Cabecalhos.EMAIL.getValue()))
@@ -34,14 +36,14 @@ public class ControladorFeed {
         RespostaFeed respostaFeed = servicoParaFeed.buscarPublicacoes(dadosDeCabecalhos);
         String contafinanceira = request.getHeader(Cabecalhos.CONTA_FINANCEIRA.getValue());
         String usuarioId = request.getHeader(Cabecalhos.USUARIO.getValue());
-
         try{
             Long.parseLong(contafinanceira);
         }catch (NumberFormatException e){
             servicoDePagamentos.criarContaFinanceira(Long.valueOf(usuarioId));
             System.out.println(" conta financeira criada");
         }
-        return ResponseEntity.ok().body(RespostaPublicacoes.montarPublicacaoReduzida(
+
+        RespostaPublicacoes resposta = RespostaPublicacoes.montarPublicacaoReduzida(
                 respostaFeed.getPublicacoes(),
                 respostaFeed.getPagamentoPendente(),
                 respostaFeed.getCodigo(),
@@ -49,7 +51,8 @@ public class ControladorFeed {
                 respostaFeed.getErroDescricao(),
                 respostaFeed.getTipoErro(),
                 respostaFeed.getTipoServico()
-                ));
+        );
+        return ResponseEntity.ok().body(resposta);
     }
     @PostMapping("obterpublicacao")
     public ResponseEntity<PublicacaoDto> obterPublicacao(@RequestBody RequisicaoParaObterPublicacao dto, CustomServletWrapper request){

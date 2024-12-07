@@ -1,10 +1,10 @@
 package br.app.camarada.backend.entidades;
 
-import br.app.camarada.backend.enums.TipoPostagem;
+import br.app.camarada.backend.enums.TipoPublicacao;
 
 public interface Conteudo {
    String obtertextoDaPostagem();
-   TipoPostagem obterTipoDeConteudo();
+   TipoPublicacao obterTipoDeConteudo();
    Perfil obterAutorPrincipal();
 
 }

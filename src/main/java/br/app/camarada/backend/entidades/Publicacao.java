@@ -1,13 +1,12 @@
 package br.app.camarada.backend.entidades;
 
-import br.app.camarada.backend.enums.TipoPostagem;
+import br.app.camarada.backend.enums.TipoPublicacao;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @AllArgsConstructor
@@ -20,19 +19,22 @@ public class Publicacao implements Conteudo {
     @Column(columnDefinition = "VARCHAR(15000) CHARACTER SET latin1 COLLATE latin1_swedish_ci")
     private String texto;
     @Enumerated
-    private TipoPostagem tipoPostagem;
+    private TipoPublicacao tipoPublicacao;
     @ManyToOne
     private Perfil autorPrincipal;
     private LocalDateTime data;
     @Column(columnDefinition = "VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci")
     private String resumo;
+    @Lob
+    private byte[] imagem;
 
     public static Publicacao montar(String texto,
-                                    TipoPostagem tipo,
+                                    TipoPublicacao tipo,
                                     Perfil autorPrincipal,
                                     LocalDateTime data,
-                                    String resumo) {
-        return new Publicacao(null, texto, tipo, autorPrincipal,data,resumo);
+                                    String resumo,
+                                    byte[] imagem) {
+        return new Publicacao(null, texto, tipo, autorPrincipal,data,resumo,imagem);
     }
 
     @Override
@@ -41,8 +43,8 @@ public class Publicacao implements Conteudo {
     }
 
     @Override
-    public TipoPostagem obterTipoDeConteudo() {
-        return this.tipoPostagem;
+    public TipoPublicacao obterTipoDeConteudo() {
+        return this.tipoPublicacao;
     }
 
     @Override

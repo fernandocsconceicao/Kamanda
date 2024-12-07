@@ -1,19 +1,17 @@
 package br.app.camarada.backend.dto;
 
-import br.app.camarada.backend.entidades.Perfil;
-import br.app.camarada.backend.enums.TipoPostagem;
+import br.app.camarada.backend.enums.TipoPublicacao;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 @AllArgsConstructor
 public class PublicacaoDto {
     private Long id;
-    private TipoPostagem tipoPostagem;
+    private TipoPublicacao tipoPublicacao;
     private PerfilDto autorPrincipal;
     private String resumo;
     private String data;
     private String texto;
+    private byte[] imagem;
 }

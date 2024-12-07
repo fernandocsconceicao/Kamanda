@@ -35,14 +35,16 @@ public class ServicoParaPerfil {
     private WorldTimeClient worldTimeClient;
     private NotionClient notionClient;
 
-    public void publicar(RequisicaoDePostagem requisicaoDePostagem, DadosDeCabecalhos dadosUsuario) throws JsonProcessingException {
+    public void publicar(RequisicaoDePostagem dto, DadosDeCabecalhos dadosUsuario) throws JsonProcessingException {
         Publicacao publicacao = null;
         Optional<Perfil> perfilPessoal = repositorioDePerfil.findById(dadosUsuario.getIdPerfilPrincipal());
 
+
+
         if (perfilPessoal.isPresent()) {
             List<Perfil> perfisMencionados = new ArrayList<>();
-            if (requisicaoDePostagem.getIdsDePerfisMencionados() != null)
-                requisicaoDePostagem.getIdsDePerfisMencionados().forEach(id -> {
+            if (dto.getIdsDePerfisMencionados() != null)
+                dto.getIdsDePerfisMencionados().forEach(id -> {
                     Optional<Perfil> optional = repositorioDePerfil.findById(id);
                     if (optional.isPresent()) {
                         perfisMencionados.add(optional.get());
@@ -52,15 +54,16 @@ public class ServicoParaPerfil {
             try {
                 data = worldTimeClient.buscarHora().getDatetime().toLocalDateTime();
             } catch (Exception e) {
-
+                System.out.println("Falha no world time");
                 data = LocalDateTime.now().minusHours(3);
             }
             publicacao = Publicacao.montar(
-                    requisicaoDePostagem.getTexto(),
-                    requisicaoDePostagem.getTipoPostagem(),
+                    dto.getTexto(),
+                    dto.getTipoPublicacao(),
                     perfilPessoal.get(),
                     data,
-                    requisicaoDePostagem.getResumo()
+                    dto.getResumo(),
+                    dto.getImagem()
             );
             repositorioDePublicacoes.save(publicacao);
             ArrayList<String> tags = new ArrayList<>();
@@ -69,10 +72,10 @@ public class ServicoParaPerfil {
                     "Bearer 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",
                     RequisicaoAppendNotionBlock.construirPublicacaoEmDatabase(
                             "128dd3360f128021af59c0941050cd4b",
-                            requisicaoDePostagem.getTexto().substring(0,
-                                    requisicaoDePostagem.getTexto().length()),
+                            dto.getTexto().substring(0,
+                                    dto.getTexto().length()),
                             tags,
-                            requisicaoDePostagem.getTexto() + "- " + dadosUsuario.getEmail()));
+                            dto.getTexto() + "- " + dadosUsuario.getEmail()));
 
         } else {
             throw new MalformedParametersException();

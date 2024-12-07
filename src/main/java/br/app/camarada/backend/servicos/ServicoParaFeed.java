@@ -71,11 +71,12 @@ public class ServicoParaFeed {
             data = publicacao.getData().toString();
         }
         return new PublicacaoDto(publicacao.getId(),
-                publicacao.getTipoPostagem(),
+                publicacao.getTipoPublicacao(),
                 PerfilDto.montar(publicacao.getAutorPrincipal()),
                 publicacao.getResumo(),
                 data.toString(),
-                publicacao.getTexto()
+                publicacao.getTexto(),
+                publicacao.getImagem()
         );
 
     }
