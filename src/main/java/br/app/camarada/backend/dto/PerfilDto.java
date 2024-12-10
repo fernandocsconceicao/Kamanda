@@ -22,6 +22,9 @@ public class PerfilDto {
     private TipoPerfil tipoPerfil;
     private List<BioPerfilDto> bio;
     private String nomeUsuario;
+    private String resumo;
+    private String telefone;
+
 
     public static PerfilDto montar(Perfil perfil) {
         ArrayList<BioPerfilDto> bio = new ArrayList<>();
@@ -72,6 +75,6 @@ public class PerfilDto {
                             rotulos
                     ));
         }
-        return new PerfilDto(perfil.getNome(), perfil.getVerificado(), perfil.getTipoPerfil(), bio, perfil.getNomeUsuario());
+        return new PerfilDto(perfil.getNome(), perfil.getVerificado(), perfil.getTipoPerfil(), bio, perfil.getNomeUsuario(), perfil.getResumo(), perfil.getTelefone());
     }
 }

@@ -14,5 +14,6 @@ public class RequisicaoDePostagem {
     private List<Long> idsDePerfisMencionados;
     private String resumo;
     private byte[] imagem;
+    private String manchete;
 
 }

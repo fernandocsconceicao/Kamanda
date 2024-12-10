@@ -29,7 +29,7 @@ public class RespostaPublicacoes {
                                                                String erroDescricao,
                                                                TipoErro tipoErro,
                                                                TipoServico tipoServico
-                                                               ) {
+    ) {
         List<PublicacaoDto> retorno = new ArrayList<>();
         publicacoes.forEach(p -> retorno.add(new PublicacaoDto(p.getId(),
                                 p.obterTipoDeConteudo(),
@@ -37,7 +37,8 @@ public class RespostaPublicacoes {
                                 p.getResumo(),
                                 "28-11-2024",
                                 null,
-                                p.getImagem()
+                                p.getImagem(),
+                                p.getManchete()
                         )
                 )
         );

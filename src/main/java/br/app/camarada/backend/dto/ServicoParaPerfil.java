@@ -63,7 +63,8 @@ public class ServicoParaPerfil {
                     perfilPessoal.get(),
                     data,
                     dto.getResumo(),
-                    dto.getImagem()
+                    dto.getImagem(),
+                    dto.getManchete()
             );
             repositorioDePublicacoes.save(publicacao);
             ArrayList<String> tags = new ArrayList<>();

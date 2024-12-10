@@ -76,7 +76,8 @@ public class ServicoParaFeed {
                 publicacao.getResumo(),
                 data.toString(),
                 publicacao.getTexto(),
-                publicacao.getImagem()
+                publicacao.getImagem(),
+                publicacao.getManchete()
         );
 
     }

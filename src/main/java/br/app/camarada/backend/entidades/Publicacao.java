@@ -27,14 +27,19 @@ public class Publicacao implements Conteudo {
     private String resumo;
     @Lob
     private byte[] imagem;
+    private Integer visualizacoes;
+    private Integer NaBibliotecaDePessoas;
+    private Integer curtidas;
+    private String manchete;
 
     public static Publicacao montar(String texto,
                                     TipoPublicacao tipo,
                                     Perfil autorPrincipal,
                                     LocalDateTime data,
                                     String resumo,
-                                    byte[] imagem) {
-        return new Publicacao(null, texto, tipo, autorPrincipal,data,resumo,imagem);
+                                    byte[] imagem,
+                                    String manchete) {
+        return new Publicacao(null, texto, tipo, autorPrincipal,data,resumo,imagem, 0,0,0,manchete);
     }
 
     @Override

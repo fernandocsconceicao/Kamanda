@@ -47,6 +47,11 @@ public class Perfil {
     @Basic(fetch = FetchType.LAZY)
     private byte[] imagemFundo;
 
+
     private String minhaBibliotecaJson;
+
+    private String emailComercial;
+    private String chavePix;
+    private String instagram;
 
 }

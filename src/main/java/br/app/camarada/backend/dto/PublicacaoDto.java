@@ -14,4 +14,5 @@ public class PublicacaoDto {
     private String data;
     private String texto;
     private byte[] imagem;
+    private String manchete;
 }
