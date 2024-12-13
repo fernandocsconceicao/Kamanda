@@ -31,6 +31,7 @@ public class Publicacao implements Conteudo {
     private Integer NaBibliotecaDePessoas;
     private Integer curtidas;
     private String manchete;
+    private Long idPerfil;
 
     public static Publicacao montar(String texto,
                                     TipoPublicacao tipo,
@@ -38,8 +39,9 @@ public class Publicacao implements Conteudo {
                                     LocalDateTime data,
                                     String resumo,
                                     byte[] imagem,
-                                    String manchete) {
-        return new Publicacao(null, texto, tipo, autorPrincipal,data,resumo,imagem, 0,0,0,manchete);
+                                    String manchete,
+                                    Long idPerfil) {
+        return new Publicacao(null, texto, tipo, autorPrincipal,data,resumo,imagem, 0,0,0,manchete,idPerfil);
     }
 
     @Override

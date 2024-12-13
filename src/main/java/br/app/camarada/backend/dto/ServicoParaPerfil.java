@@ -64,7 +64,8 @@ public class ServicoParaPerfil {
                     data,
                     dto.getResumo(),
                     dto.getImagem(),
-                    dto.getManchete()
+                    dto.getManchete(),
+                    perfilPessoal.get().getId()
             );
             repositorioDePublicacoes.save(publicacao);
             ArrayList<String> tags = new ArrayList<>();
@@ -161,5 +162,21 @@ public class ServicoParaPerfil {
         }
 
 
+    }
+
+    public Boolean salvarPerfil(DadosDeCabecalhos dadosDeCabecalhos,RequisicaoSalvarPerfil req) {
+        Long idPerfilPrincipal = dadosDeCabecalhos.getIdPerfilPrincipal();
+        Optional<Perfil> optional = repositorioDePerfil.findById(idPerfilPrincipal);
+        if(optional.isPresent()){
+            Perfil perfil = optional.get();
+            perfil.setTelefone(req.getTelefone());
+            perfil.setNomeUsuario(req.getNomeDeUsuario());
+            perfil.setIdade(req.getIdade());
+            perfil.setEmailComercial(req.getEmailComercial());
+            perfil.setChavePix(req.getChavePix());
+            repositorioDePerfil.save(perfil);
+            return true;
+        }
+        return false;
     }
 }

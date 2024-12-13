@@ -10,6 +10,5 @@ import java.util.List;
 @Repository
 public interface RepositorioDePublicacoes extends JpaRepository<Publicacao,Long> {
 
-//    @Query(nativeQuery = true, value = "Select * from publicacao")
-//    List<Publicacao> buscarPublicacoes();
+    List<Publicacao> findByIdPerfil(Long id);
 }

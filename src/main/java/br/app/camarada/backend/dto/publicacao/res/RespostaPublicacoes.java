@@ -38,7 +38,8 @@ public class RespostaPublicacoes {
                                 "28-11-2024",
                                 null,
                                 p.getImagem(),
-                                p.getManchete()
+                                p.getManchete(),
+                                p.getAutorPrincipal().getImagem()
                         )
                 )
         );
