@@ -26,7 +26,7 @@ repositories {
 
 dependencies {
 	implementation("org.springframework.cloud:spring-cloud-starter-openfeign:4.0.2")
-
+	implementation ("org.springframework.boot:spring-boot-starter-websocket")
 //	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	runtimeOnly("com.mysql:mysql-connector-j")

@@ -109,7 +109,8 @@ public class ServicoParaUsuarios implements UserDetailsService {
         Preferencias preferencias = servicoDePreferencias.salvar(new Preferencias());
 //        servicoDeEmail.enviarEmail(mensagem);
 
-        Usuario user = new Usuario(null,
+        Usuario user = new Usuario(
+                null,
                 encoder.encode(dto.getSenha()),
                 dto.getTipoConta(),
                 dto.getEmail(),
@@ -119,6 +120,13 @@ public class ServicoParaUsuarios implements UserDetailsService {
                 codigo,
                 false,
                 null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                "{}",
                 null,
                 null,
                 null,

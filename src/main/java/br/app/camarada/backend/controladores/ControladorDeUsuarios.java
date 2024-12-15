@@ -48,7 +48,14 @@ public class ControladorDeUsuarios {
 
 
     }
-
+    @PostMapping("/confirmaremail")
+    public ResponseEntity confirmaremail(@RequestBody ReqConfirmacaoEmail dto, CustomServletWrapper request) {
+        if (servicoParaUsuarios.confirmarEmail(dto.getCodigo(), Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.status(403).build();
+        }
+    }
     @PostMapping("/autenticar")
     public ResponseEntity<AuthenticationResponseDto> authenticate(@RequestBody RequisicaoDeAutenticacao dto
             , CustomServletWrapper request) {

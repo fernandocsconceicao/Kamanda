@@ -7,7 +7,8 @@ public enum Cabecalhos {
     TIPO_CONTA("x-conta"),
     PREFERENCIA("x-preferencia"),
      CONTA_FINANCEIRA("x-conta-financeira"),
-     PERFIL("x-perfil");
+     PERFIL("x-perfil"),
+    ESTABELECIMENTO("x-estabelecimento");
     private final String value;
 
     Cabecalhos(String value){

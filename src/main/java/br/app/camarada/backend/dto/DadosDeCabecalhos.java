@@ -12,4 +12,5 @@ public class DadosDeCabecalhos {
     private Long idPerfilPrincipal;
     private String email;
     private Boolean primeiroAcesso;
+    private Long idRegiao;
 }

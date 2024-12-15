@@ -9,6 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
@@ -36,11 +37,20 @@ public class Usuario implements UserDetails {
     private Boolean prontoParaMudarDeSenha;
     private String senhaAntiga;
     private Boolean pingpongEstaOk;
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     private ContaFinanceira contaFinanceira;
     @OneToMany(fetch = FetchType.LAZY)
     private List<Perfil> perfil;
     private Long perfilPrincipalId;
+    private String carrinho;
+    private String idDaSessaoWs;
+    @ManyToOne
+    private Regiao regiao;
+    private BigDecimal simulacaoPrecoFinalDaSimulacao;
+    private Double simulacaoDistancia;
+    private BigDecimal simulacaoFrete;
+    @OneToOne
+    private Estabelecimento estabelecimento;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return getPermissoes();

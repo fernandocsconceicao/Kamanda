@@ -15,4 +15,8 @@ public interface RepositorioDeUsuario extends JpaRepository<Usuario, Long> {
     Usuario findByEmail(String email);
     ArrayList<Usuario> findAll();
 
+    Usuario findByEstabelecimentoId(Long idDeEstabelecimento);
+
+    @Query(nativeQuery = true, value = "Select * from usuario where entregador_id = :id")
+    Usuario findByEntregadorId(@Param("id") Long idEntregador);
 }
