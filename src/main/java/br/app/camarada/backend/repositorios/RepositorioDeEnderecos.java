@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RepositorioDeEndereco extends JpaRepository<Endereco, Long> {
+public interface RepositorioDeEnderecos extends JpaRepository<Endereco, Long> {
     @Query(nativeQuery = true, value = "Select * from endereco where cliente_id = :idCliente  ")
     Endereco obterPorCliente(@Param("idCliente") Long idCliente);
     @Query(nativeQuery = true, value = "Select * from endereco where estabelecimento_id = :value  ")

@@ -15,7 +15,7 @@ public class ReqPrimeiroAcessoEstabelecimento {
 
     private Long idDeEstabelecimento;
 
-    private byte[] logo;
+    private String logo;
     private BigDecimal valorMinimoDePedido;
     private String descricao;
     private Date inicioExpediente;

@@ -3,11 +3,9 @@ package br.app.camarada.backend.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-@AllArgsConstructor
 @Data
-public class ProdutoDto {
-    private Long id;
+@AllArgsConstructor
+public class CategoriaDto {
     private String nome;
-    private byte[] imagem;
-    private String preco;
+    private String categoriaEnum;
 }

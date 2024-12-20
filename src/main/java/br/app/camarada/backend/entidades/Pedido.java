@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
-public class    Pedido {
+public class Pedido {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -28,7 +28,6 @@ public class    Pedido {
     private LocalDateTime prepareTime;
     private Integer expectedTime;
     private Long idDoEstabelecimento;
-    private Long cartId;
     private String nome;
     private String celular;
     private BigDecimal valorTotal; // TODO: Trocar para valor total dos produtos do pedido

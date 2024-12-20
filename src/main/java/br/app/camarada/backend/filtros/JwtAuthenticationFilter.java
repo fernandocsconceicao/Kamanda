@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 /**
@@ -71,6 +72,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             request.getRequestURI().equals("/usuario/esqueciasenha/enviarnovasenha")
                             ||
                             request.getRequestURI().equals("/usuario/excluir")
+                            ||
+                            request.getRequestURI().equals("/regiao/listar")
 
 
             ) {
@@ -108,7 +111,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (jwtService.isTokenValid(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
                             null,
-                            userDetails.getAuthorities()
+                            new ArrayList<>()
                     );
                     authToken.setDetails(
                             new WebAuthenticationDetailsSource().buildDetails(request)
@@ -133,11 +136,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (userDetails.getContaFinanceira() != null)
             httpReq.addHeader(Cabecalhos.CONTA_FINANCEIRA.getValue(), userDetails.getContaFinanceira().getId().toString());
 
-
         httpReq.addHeader(Cabecalhos.USUARIO.getValue(), userDetails.getId().toString());
         if (userDetails.getPerfilPrincipalId() != null)
             httpReq.addHeader(Cabecalhos.PERFIL.getValue(), userDetails.getPerfilPrincipalId().toString());
+        if (userDetails.getEstabelecimentoId() != null)
+            httpReq.addHeader(Cabecalhos.ESTABELECIMENTO.getValue(), userDetails.getEstabelecimentoId().toString());
 
+        if (userDetails.getEndereco() != null)
+            httpReq.addHeader(Cabecalhos.ENDERECO.getValue(), userDetails.getEndereco().getId().toString());
 
         return httpReq;
     }

@@ -35,4 +35,11 @@ public class Endereco {
     private Estabelecimento_Endereco estabelecimento;
     @OneToOne
     private Estabelecimento estabelecimento_produtos;
+    public static Endereco build(Usuario usuario){
+        return new Endereco(
+                null,null,null,null,
+                usuario,false,null,
+                null,null,null,null,null,
+                null,null,null);
+    }
 }

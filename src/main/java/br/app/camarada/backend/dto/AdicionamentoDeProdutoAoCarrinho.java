@@ -2,8 +2,11 @@ package br.app.camarada.backend.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class AdicionamentoDeProdutoAoCarrinho {
-    private Long idProduto;
-    private Integer quantidade;
+    private List<ItemCarrinho> produtos;
+
 }
+

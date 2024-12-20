@@ -5,11 +5,14 @@ import br.app.camarada.backend.dto.*;
 import br.app.camarada.backend.dto.google.RespostaLocalidadeGoogleMaps;
 import br.app.camarada.backend.entidades.*;
 import br.app.camarada.backend.enums.PlanoEstabelecimento;
+import br.app.camarada.backend.enums.TextosBundle;
 import br.app.camarada.backend.enums.TipoDeLocalidade;
 import br.app.camarada.backend.enums.TipoServico;
+import br.app.camarada.backend.exception.ErroPadrao;
 import br.app.camarada.backend.exception.ExcessaoDeEnderecoInvalido;
 import br.app.camarada.backend.repositorios.*;
 import br.app.camarada.backend.utilitarios.StringUtils;
+import br.app.camarada.backend.utilitarios.UtilitarioBundle;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
@@ -39,10 +43,25 @@ public class ServicoDeEstabelecimentos {
     private RepositorioDeRegiao regiaoRepository;
 
 
+    public TelaMeuEstabelecimento obterTelaEstabelecimento(Long idEstabelecimento) {
+        Estabelecimento estabelecimento = obterEstabelecimento(idEstabelecimento);
+        List<CartaoEstabelecimento> cartoes = new ArrayList<>();
+        cartoes.add(
+                new CartaoEstabelecimento(UtilitarioBundle.obterMensagem(TextosBundle.CARTAO_MEU_ESTABELECIMENTO_VALOR_A_RECEBER),
+                        estabelecimento.getValorAReceber().toString())
+        );
+        cartoes.add(
+                new CartaoEstabelecimento(UtilitarioBundle.obterMensagem(TextosBundle.CARTAO_MEU_ESTABELECIMENTO_PLANO_ATUAL),
+                        estabelecimento.getPlano().getNome())
+        );
+
+        return new TelaMeuEstabelecimento(cartoes);
+    }
     @Transactional
     public Estabelecimento addEstablishment(PropriedadesDoEstabelecimento dto) {
         try {
-            Endereco endereco = servicoDeEndereco.criarEndereco(new Endereco());
+
+            Endereco endereco = servicoDeEndereco.criarEndereco(Endereco.build(null));
             return repositorioDeEstabelecimento.save(
                     Estabelecimento.build(dto, endereco)
             );
@@ -88,7 +107,7 @@ public class ServicoDeEstabelecimentos {
 
         Regiao regiao = regiaoRepository.findById(dto.getIdRegiao()).get();
 
-        estabelecimento.setLogo(dto.getLogo());
+        estabelecimento.setLogo(dto.getLogo().getBytes());
         if (dto.getValorMinimoDePedido() != null)
             estabelecimento.setMinOrder(dto.getValorMinimoDePedido());
         if (dto.getInicioExpediente() != null)
@@ -226,7 +245,13 @@ public class ServicoDeEstabelecimentos {
     public void salvar(Estabelecimento_Endereco estabelecimento) {
         estabelecimentoEnderecoRepository.save(estabelecimento);
     }
+    public MeuPerfilScreen obterTelaMinhaLoja(Long idEstabelecimento) {
+        Estabelecimento_Endereco estabelecimento = obterEstabelecimento_Endereco(idEstabelecimento);
 
+        if (estabelecimento == null)
+            throw new ErroPadrao("Id de estabelecimento inválido. " + idEstabelecimento);
+        return MeuPerfilScreen.build(estabelecimento);
+    }
     public Boolean alterarHorarioFuncionamento(ReqAlterarHorarioFuncionamento dto, Long id) {
         Optional<Estabelecimento> estabelecimentoOpt = repositorioDeEstabelecimento.findById(id);
         if (estabelecimentoOpt.isPresent()) {

@@ -9,10 +9,17 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Data
 @NoArgsConstructor
-public class ItemCarrinho {
+public class ItemCarrinhoComImagem {
     private Long id;
     private String titulo;
     private Integer quantidade;
     private BigDecimal preco;
+    private byte[] imagem;
 
+    /*(
+       val id: Long,
+    val image: String,
+    val title: String,
+    var amount: Int
+     */
 }

@@ -8,7 +8,8 @@ public enum Cabecalhos {
     PREFERENCIA("x-preferencia"),
      CONTA_FINANCEIRA("x-conta-financeira"),
      PERFIL("x-perfil"),
-    ESTABELECIMENTO("x-estabelecimento");
+    ESTABELECIMENTO("x-estabelecimento"),
+    ENDERECO("x-endereco");
     private final String value;
 
     Cabecalhos(String value){

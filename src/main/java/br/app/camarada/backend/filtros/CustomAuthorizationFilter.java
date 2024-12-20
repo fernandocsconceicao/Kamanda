@@ -32,38 +32,14 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
         log.error("Não autorizado");
         response.setStatus(401);
         response.setContentType("application/json");
-
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         doFilter(request, response, filterChain);
-        return;
-//        if (
-//                (request.getRequestURI().equals("/totem/screens/login")
-//                        ||
-//                        request.getRequestURI().equals("/usuario/autenticar"))
-//                        ||
-//                        request.getRequestURI().equals("/usuario/registrar")
-//                        ||
-//                        request.getRequestURI().equals("/usuario/esqueciasenha/gerarcodigo")
-//                        ||
-//                        request.getRequestURI().equals("/usuario/esqueciasenha/confirmarcodigo")
-//                        ||
-//                        request.getRequestURI().equals("/usuario/esqueciasenha/enviarnovasenha")
-//
-//                        ||
-//                        request.getRequestURI().equals("/usuario/excluir")
-//
-//        ) {
-////            filterUtil.aplicarSeguranca(permissoes, 1);
-//           return;
-//        }else {
-//            log.info("Não autenticado");
-//        }
+
     }
 }

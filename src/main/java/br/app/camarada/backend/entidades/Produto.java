@@ -1,6 +1,7 @@
 package br.app.camarada.backend.entidades;
 
-import br.app.camarada.backend.enums.Categoria;
+import br.app.camarada.backend.dto.ReqCriacaoDeProduto;
+import br.app.camarada.backend.enums.CategoriaProduto;
 import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,10 +28,45 @@ public class Produto {
     private byte[] imagem;
     private LocalDate dataDeCriacao;
     @Enumerated
-    private Categoria categoria;
+    private CategoriaProduto categoriaProduto;
     private BigDecimal preco;
     private Double avaliacao;
     private LocalDateTime dataExibicao;
     private Long idRegiao;
+    private String marca;
+    private String modelo;
+    private String descricao;
+    private String tamanho;
+    private String material;
+    private Integer estoque;
+    private Integer prazoDeEntrega;
+    private Integer popularidade;
+
+    public static Produto build(ReqCriacaoDeProduto dto, Estabelecimento estabelecimento) {
+        return new Produto(
+                null,
+                dto.getNome(),
+                estabelecimento,
+                dto.getImagem(),
+                LocalDate.now(),
+                dto.getCategoriaProduto(),
+                dto.getPreco(),
+                5.0d,
+                LocalDateTime.now(),
+                null,
+                dto.getMarca(),
+                dto.getModelo(),
+                dto.getDescricao(),
+                dto.getTamanho(),
+                dto.getMaterial(),
+                dto.getEstoque(),
+                dto.getPrazoDeEntrega(),
+            0
+
+
+
+        );
+
+    }
 
 }

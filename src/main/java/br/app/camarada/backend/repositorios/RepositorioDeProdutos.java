@@ -17,8 +17,7 @@ public interface RepositorioDeProdutos extends JpaRepository<Produto, Long> {
 
     @Query(nativeQuery = true,
             value = "SELECT * FROM produto " +
-                    "WHERE id_regiao = :regiao " +
                     "ORDER BY avaliacao DESC, data_exibicao DESC " +
                     "LIMIT :limite")
-    List<Produto> buscarPorExibicaoEAvaliacao(@Param("regiao") Long idDeRegiao, @Param("limite") Integer limite);
+    List<Produto> buscarPorExibicaoEAvaliacao( @Param("limite") Integer limite);
 }

@@ -1,6 +1,7 @@
 package br.app.camarada.backend.dto;
 
 
+import br.app.camarada.backend.enums.PlanoEstabelecimento;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -14,5 +15,6 @@ public class AuthenticationResponseDto {
     private byte[] imagemPerfil;
     private Boolean emailConfirmado;
     private Long idEntregador;
+    private Long idEstabelecimento;
 //    private PlanoEstabelecimento plano;
 }

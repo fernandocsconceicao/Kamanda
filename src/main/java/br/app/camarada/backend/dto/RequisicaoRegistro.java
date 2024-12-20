@@ -15,6 +15,6 @@ public class RequisicaoRegistro {
     private String nome;
     @Nullable
     private TipoConta tipoConta;
-//    private CriacaoDeUsuarioClienteDto criacaoDeUsuarioClienteDto;
+    private PropriedadesDoEstabelecimento propriedadeDeEstabelecimentos;
 
 }

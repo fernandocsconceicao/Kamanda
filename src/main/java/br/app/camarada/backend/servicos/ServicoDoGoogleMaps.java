@@ -37,7 +37,8 @@ public class ServicoDoGoogleMaps {
 
     public DistanciaDto calcularDistancia(Endereco enderecoCliente, Endereco enderecoEstabelecimento)  {
         System.out.println("place_id:" + enderecoCliente.getEnderecoCompleto());
-        RespostaDistanciaGoogleMaps respostaDistanciaGoogleMaps = googleMapsClient.buscarDistancia(key,
+        RespostaDistanciaGoogleMaps respostaDistanciaGoogleMaps = googleMapsClient.buscarDistancia(
+                key,
                 enderecoCliente.getEnderecoCompleto(),
                 enderecoEstabelecimento.getEnderecoCompleto());
         try {

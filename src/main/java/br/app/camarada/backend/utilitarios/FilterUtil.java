@@ -42,7 +42,7 @@ public class FilterUtil {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
         } else {
-            throw   new SecurityException("Token Inválido");
+            throw new SecurityException("Token Inválido");
         }
     }
 

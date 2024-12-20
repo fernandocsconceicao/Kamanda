@@ -54,7 +54,8 @@ public class BackendApplication  implements CommandLineRunner {
                     "123455678",
                     "1234567890",
                     "admin",
-                    TipoConta.ADMIN));
+                    TipoConta.ADMIN,
+                    null));
         }
     }
 }

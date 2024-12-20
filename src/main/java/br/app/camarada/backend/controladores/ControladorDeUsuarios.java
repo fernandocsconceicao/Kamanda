@@ -8,13 +8,13 @@ import br.app.camarada.backend.servicos.ServicoDeAdministracao;
 import br.app.camarada.backend.servicos.ServicoDePagamentos;
 import br.app.camarada.backend.servicos.ServicoParaUsuarios;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/usuario")
@@ -22,6 +22,38 @@ import org.springframework.web.bind.annotation.RestController;
 public class ControladorDeUsuarios {
     private ServicoParaUsuarios servicoParaUsuarios;
     private ServicoDeAdministracao servicoDeAdministracao;
+    @PostMapping("/autenticar")
+    public ResponseEntity<AuthenticationResponseDto> authenticate(@RequestBody RequisicaoDeAutenticacao dto
+            , CustomServletWrapper request) throws JsonProcessingException {
+
+        AuthenticationResponseDto authenticate = servicoParaUsuarios.authenticate(dto);
+        System.out.println(new ObjectMapper().writeValueAsString(authenticate));
+        return ResponseEntity.ok().body(authenticate);
+    }
+    @PostMapping("/endereco/editar")
+    public ResponseEntity<Void> editarEndereco(@RequestBody ReqEdicaoEndereco dto, CustomServletWrapper request) {
+
+        Long idEstabelecimento = null;
+        if (request.getHeader(Cabecalhos.ESTABELECIMENTO.getValue()) != null) {
+            idEstabelecimento = Long.parseLong(request.getHeader(Cabecalhos.ESTABELECIMENTO.getValue()));
+        }
+        servicoParaUsuarios.editarEndereco(dto,DadosDeCabecalhos.builder()
+                .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))
+                .idEndereco(Long.parseLong(request.getHeader(Cabecalhos.ENDERECO.getValue())))
+                .build());
+        return ResponseEntity.ok().build();
+    }
+    @GetMapping("/endereco/tela")
+    public ResponseEntity<ResTelaEntrega> obterTelaDeEdicaoDeEndereco( CustomServletWrapper request) {
+
+        EnderecoDto enderecoDto = servicoParaUsuarios.obterEndereco(DadosDeCabecalhos.builder()
+                .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))
+                .build()
+        );
+        ResTelaEntrega resTelaEntrega = new ResTelaEntrega(enderecoDto);
+        return ResponseEntity.ok().body(resTelaEntrega);
+    }
+
     @PostMapping("/denunciar")
     public ResponseEntity<AuthenticationResponseDto> denunciar(@RequestBody RequisicaoDenuncia dto, CustomServletWrapper request) throws JsonProcessingException {
           servicoDeAdministracao.denuncia(dto,
@@ -33,7 +65,6 @@ public class ControladorDeUsuarios {
         return ResponseEntity.ok().build();
 
     }
-
     @PostMapping("/registrar")
     public ResponseEntity<AuthenticationResponseDto> registrarUsuario(@RequestBody RequisicaoRegistro dto) {
         try {
@@ -55,14 +86,6 @@ public class ControladorDeUsuarios {
         } else {
             return ResponseEntity.status(403).build();
         }
-    }
-    @PostMapping("/autenticar")
-    public ResponseEntity<AuthenticationResponseDto> authenticate(@RequestBody RequisicaoDeAutenticacao dto
-            , CustomServletWrapper request) {
-
-        AuthenticationResponseDto authenticate = servicoParaUsuarios.authenticate(dto);
-
-        return ResponseEntity.ok().body(authenticate);
     }
     @PostMapping("/autenticar/existeemail")
     public ResponseEntity<RespostaExisteEmailCadastrado> existeEmail(@RequestBody RequisicaoExisteEmailCadastrado dto) {

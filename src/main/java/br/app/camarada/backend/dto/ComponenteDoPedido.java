@@ -3,11 +3,11 @@ package br.app.camarada.backend.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.math.BigDecimal;
 @AllArgsConstructor
 @Data
-public class ProdutoDto {
-    private Long id;
+public class ComponenteDoPedido {
     private String nome;
-    private byte[] imagem;
     private String preco;
+
 }

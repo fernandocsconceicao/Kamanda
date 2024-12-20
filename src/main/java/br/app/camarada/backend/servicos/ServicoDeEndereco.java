@@ -6,7 +6,7 @@ import br.app.camarada.backend.dto.ReqCriacaoEndereco;
 import br.app.camarada.backend.dto.ReqEdicaoEndereco;
 import br.app.camarada.backend.dto.google.RespostaLocalidadeGoogleMaps;
 import br.app.camarada.backend.entidades.Endereco;
-import br.app.camarada.backend.repositorios.RepositorioDeEndereco;
+import br.app.camarada.backend.repositorios.RepositorioDeEnderecos;
 import br.app.camarada.backend.repositorios.RepositorioDeEstabelecimentos_Endereco;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +18,7 @@ import static br.app.camarada.backend.enums.TipoDeLocalidade.CLIENTE;
 @Slf4j
 @AllArgsConstructor
 public class ServicoDeEndereco {
-    private RepositorioDeEndereco enderecoRepository;
+    private RepositorioDeEnderecos enderecoRepository;
     private ServicoDoGoogleMaps servicoDoGoogleMaps;
     private RepositorioDeEstabelecimentos_Endereco estabelecimentoEnderecoRepository;
 
