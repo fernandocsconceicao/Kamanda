@@ -19,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @Data
 @Table(name = "estabelecimento")
-public class Estabelecimento {
+public class EstabelecimentoReduzido {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -28,12 +28,7 @@ public class Estabelecimento {
     private String name;
     private String cnpj;
     private LocalDate creationDate;
-//    @ManyToMany
-//    private List<Totem> totens;
     private Boolean openClosed;
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    private byte[] logo;
     private BigDecimal minOrder;
     private Float avaliacao;
     private String description;
@@ -45,51 +40,11 @@ public class Estabelecimento {
     private PlanoEstabelecimento plano;
     private Double taxa;
     private BigDecimal valorAReceber;
-    @ManyToOne
-    private Regiao regiao;
     private Boolean aprovado;
-
     private Integer limiteDeEntregas;
     private Integer entregasNoPeriodo;
     private Long usuarioId;
-    @OneToOne(fetch = FetchType.LAZY)
-    private Endereco endereco;
 
-    public static Estabelecimento build(PropriedadesDoEstabelecimento dto, Endereco endereco)  {
 
-        try {
-            return new Estabelecimento(
-                    null,
-                    null,
-                    null,
-                    dto.getNome(),
 
-                    dto.getCnpj(),
-                    LocalDate.now(),
-                    false,
-                    ImageUtils.createTestImage(),
-                    null,
-                    0.0f,
-                    null,
-                    false,
-                    false,
-                    dto.getTelefone(),
-                    null,
-                    null,
-                    dto.getPlanoEstabelecimento(),
-                    dto.getPlanoEstabelecimento().getTax(),
-                    BigDecimal.ZERO,
-                    null,
-                    false,
-                    null,
-                    null,
-                    null,
-                    endereco
-
-                );
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
 }

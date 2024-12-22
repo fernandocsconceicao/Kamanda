@@ -29,6 +29,7 @@ public class Pagamento {
     private Long pixId;
     private Long usuarioId;
     private BigDecimal valorUbuntu;
+    private BigDecimal valorEntrega;
     private TipoServico tipoServico;
     @Enumerated
     private FormaDePagamento formaDePagamento;

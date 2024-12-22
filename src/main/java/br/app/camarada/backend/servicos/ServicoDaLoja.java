@@ -1,16 +1,12 @@
 package br.app.camarada.backend.servicos;
 
 import br.app.camarada.backend.client.GoogleMapsClient;
+import br.app.camarada.backend.dto.Properties;
 import br.app.camarada.backend.dto.*;
-import br.app.camarada.backend.entidades.Endereco;
-import br.app.camarada.backend.entidades.Estabelecimento;
-import br.app.camarada.backend.entidades.Produto;
-import br.app.camarada.backend.entidades.Usuario;
+import br.app.camarada.backend.entidades.*;
+import br.app.camarada.backend.enums.StatusPedido;
 import br.app.camarada.backend.exception.ErroPadrao;
-import br.app.camarada.backend.repositorios.RepositorioDeEnderecos;
-import br.app.camarada.backend.repositorios.RepositorioDeEstabelecimentos;
-import br.app.camarada.backend.repositorios.RepositorioDeProdutos;
-import br.app.camarada.backend.repositorios.RepositorioDeUsuario;
+import br.app.camarada.backend.repositorios.*;
 import br.app.camarada.backend.utilitarios.StringUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -23,10 +19,9 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -39,11 +34,12 @@ public class ServicoDaLoja {
     private GoogleMapsClient googleMapsClient;
     private ServicoDoGoogleMaps servicoDoGoogleMaps;
     private RepositorioDeEnderecos repositorioDeEnderecos;
+    private RepositorioDePedidos repositorioDePedidos;
 
 
     public ProductScreen obterTelaDeProduto(Long id) {
         Produto produto = repositorioDeProdutos.findById(id).get();
-        return ProductScreen.build(produto, getProductProperties(produto), produto.getPreco());
+        return ProductScreen.build(produto, getProductProperties(produto), produto.getPrecoVitrine());
     }
 
     @Transactional
@@ -126,8 +122,15 @@ public class ServicoDaLoja {
 
         List<Produto> produtos = repositorioDeProdutos.buscarPorExibicaoEAvaliacao(10);
         List<ProdutoDto> produtoDtos = new ArrayList<>();
+        produtos.forEach(p -> {
+            if (p.getPrecoVitrine() == null) {
+                p.setPrecoVitrine(p.getPreco().multiply(BigDecimal.valueOf(1.20)));
+                repositorioDeProdutos.save(p);
+            }
+            produtoDtos.add(new ProdutoDto(p.getId(), p.getNome(), p.getImagem(), StringUtils.formatPrice(p.getPrecoVitrine())));
 
-        produtos.forEach(p -> produtoDtos.add(new ProdutoDto(p.getId(), p.getNome(), p.getImagem(), StringUtils.formatPrice(p.getPreco()))));
+        });
+
         produtos.forEach(p -> {
             p.setDataExibicao(LocalDateTime.now());
         });
@@ -137,7 +140,7 @@ public class ServicoDaLoja {
         return new TelaVitrine(produtoDtos);
     }
 
-    public void adicionarAoCarrinho(AdicionamentoDeProdutoAoCarrinho dto, DadosDeCabecalhos dadosDeCabecalhos) throws JsonProcessingException {
+    public void adicionarAoCarrinho(AdicionamentoDeProdutoAoCarrinho dto, DadosDeCabecalhos dadosDeCabecalhos) {
         Usuario usuario = repositorioDeUsuario.findById(dadosDeCabecalhos.getIdUsuario()).get();
         //Para cada item no carrinho, se processará sua quantidade
 
@@ -145,8 +148,6 @@ public class ServicoDaLoja {
             Optional<Produto> opt = repositorioDeProdutos.findById(itemCarrinho.getId());
             if (opt.isPresent()) {
                 Produto produto = opt.get();
-
-
                 String carrinhoJson = usuario.getCarrinho();
 
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -171,12 +172,26 @@ public class ServicoDaLoja {
                         itemCarrinhoObjeto.setQuantidade(itemCarrinho.getQuantidade() + itemCarrinhoObjeto.getQuantidade());
                         if (itemCarrinhoObjeto.getQuantidade() < 1) {
                             carrinhoObjeto.remove(carrinhoObjeto.indexOf(itemCarrinhoObjeto));
+                            if (carrinhoObjeto.size() == 0) {
+                                String json = null;
+                                try {
+                                    json = objectMapper.writeValueAsString(carrinhoObjeto);
+                                } catch (JsonProcessingException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                usuario.setCarrinho(json);
+                                repositorioDeUsuario.save(usuario);
+                                return;
+                            }
                         }
                         itemAdicionado.set(true);
                     }
                 });
-                if (!itemAdicionado.get())
-                    carrinhoObjeto.add(new ItemCarrinho(produto.getId(), produto.getNome(), itemCarrinho.getQuantidade(), produto.getPreco()));
+                if (!itemAdicionado.get()) {
+                    repositorioDeEstabelecimentos.findById(produto.getEstabelecimentoId());
+                    carrinhoObjeto.add(new ItemCarrinho(produto.getId(), produto.getNome(),
+                            itemCarrinho.getQuantidade(), produto.getPrecoVitrine(), produto.getEstabelecimentoId()));
+                }
 
                 String json = null;
                 try {
@@ -207,12 +222,134 @@ public class ServicoDaLoja {
         return list;
     }
 
+    @Transactional
+    public List<Pedido> criarPedido(Usuario usuario, StatusPedido statusIniciadoDoPedido, Pagamento pagamento) {
+        try {
+            List<ItemCarrinho> itensDoCarrinho = StringUtils.transformarCarrinhoEmObj(usuario.getCarrinho());
+            if (itensDoCarrinho.size() == 0) throw new ErroPadrao("Não existem produtos no carrinho");
+            ArrayList<Pedido> pedidos = new ArrayList<>();
+
+            String titulo = itensDoCarrinho.get(0).getTitulo();
+            if (itensDoCarrinho.size() > 1) {
+                titulo += " e mais " + (itensDoCarrinho.size() - 1) + " ";
+                if (itensDoCarrinho.size() - 1 > 1) {
+                    titulo += "itens";
+                } else {
+                    titulo += "item";
+
+                }
+            }
+            String finalTitulo = titulo;
+
+            Set<Long> listaDeIdsDeEstabelecimento = new HashSet<>();
+
+            itensDoCarrinho.forEach(itemCarrinho -> listaDeIdsDeEstabelecimento.add(itemCarrinho.getIdEstabelecimento()));
+            AtomicReference<BigDecimal> frete = new AtomicReference<>(new BigDecimal(0));
+
+            listaDeIdsDeEstabelecimento.forEach(idDeEstabelecimento -> {
+                        AtomicReference<BigDecimal> valorFinal = new AtomicReference<>(new BigDecimal(0));
+                        //Separa os produtos do carrinho por id de estabelecimento, em ultima instancia, estes são os produtos de um pedido
+                        // para este estabelecimento de id == idDeEstabelecimento
+                        AtomicReference<BigDecimal> valorEstabelecimento = new AtomicReference<>(BigDecimal.ZERO);
+                        List<ItemCarrinho> ItensEmPedidoParaEsteEstabelecimento = itensDoCarrinho.stream()
+                                .filter(itemCarrinho -> itemCarrinho.getIdEstabelecimento().equals(idDeEstabelecimento))
+                                .collect(Collectors.toUnmodifiableList());
+
+                        AtomicReference<BigDecimal> valorTotalDoPedido = new AtomicReference<>(new BigDecimal(0));
+
+                        //Calcular o preço total do pedido e adiciona ao valor final
+                        List<ProdutoDePedido> produtosDePedido = new ArrayList<>();
+
+                        ItensEmPedidoParaEsteEstabelecimento.forEach(
+                                produtoDoPedido -> {
+                                    Produto produto = repositorioDeProdutos.findById(produtoDoPedido.getId()).get();
+                                    BigDecimal price = produtoDoPedido.getPreco().multiply(new BigDecimal(produtoDoPedido.getQuantidade()));
+                                    valorFinal.set(valorTotalDoPedido.get().add(price));
+                                    valorTotalDoPedido.set(valorTotalDoPedido.get().add(price));
+                                    produtosDePedido.add(ProdutoDePedido.build(produtoDoPedido, produto));
+                                    valorEstabelecimento.set(valorEstabelecimento.get().multiply(BigDecimal.valueOf(produtoDoPedido.getQuantidade())));
+                                });
+
+                        Estabelecimento estabelecimento = repositorioDeEstabelecimentos.findById(idDeEstabelecimento).get();
+
+                        // Transformar em JSON
+                        String json = null;
+
+                        ObjectMapper objectMapper = new ObjectMapper();
+
+                        try {
+                            json = objectMapper.writeValueAsString(produtosDePedido);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        SimulacaoEntregaDto simulacaoEntregaDto;
+                        try {
+                            simulacaoEntregaDto = calcularFrete(frete, usuario.getEndereco(), estabelecimento);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        Pedido pedido = null;
+                        pedido = repositorioDePedidos.save(new Pedido(
+                                        null,
+                                        statusIniciadoDoPedido,
+                                        usuario.getId(),
+                                        usuario.getCpf(),
+                                        usuario.getNome(),
+                                        LocalDateTime.now(),
+                                        null,
+                                        estabelecimento.getId(),
+                                        finalTitulo,
+                                        usuario.getTelefone(),
+                                        valorFinal.get(),
+                                        null,
+                                        finalTitulo,
+                                        null,
+                                        estabelecimento.getEndereco().getEnderecoCompleto(),
+                                        usuario.getEndereco().getEnderecoCompleto(),
+                                        null,
+                                        null,
+                                        simulacaoEntregaDto.getPrecoEntrega(),
+                                        pagamento,
+                                        json,
+                                        produtosDePedido.get(0).getMiniatura(),
+                                        valorEstabelecimento.get(),
+                                        null
+
+                                )
+                        );
+                        pedidos.add(pedido);
+                    }
+            );
+            return pedidos;
+
+
+        } catch (IllegalArgumentException |
+                 OptimisticLockingFailureException e) {
+            String message = new StringBuilder
+                    ("Erro ao criar pedido: ").append(e.getMessage())
+                    .toString();
+            log.error(message);
+            throw new ErroPadrao(message);
+        } catch (
+                NoSuchElementException e) {
+            String message = new StringBuilder
+                    ("Totem inválido: ").append(e.getMessage())
+                    .toString();
+            log.error(message);
+            throw new ErroPadrao(message);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
     public TelaEntregaCliente obterTelaDeEntregaParaCliente(DadosDeCabecalhos dadosDeCabecalhos) {
 
         Usuario usuario = repositorioDeUsuario.findById(dadosDeCabecalhos.getIdUsuario()).get();
         Endereco enderecoCliente = usuario.getEndereco();
 
-        AtomicReference<BigDecimal> frete = new AtomicReference<>(new BigDecimal(0));
+        final AtomicReference<BigDecimal>[] frete = new AtomicReference[]{new AtomicReference<>(new BigDecimal(0))};
 
         //lista de estabelecimentos do carrinho
         String carrinhoJson = usuario.getCarrinho();
@@ -220,7 +357,8 @@ public class ServicoDaLoja {
         ObjectMapper objectMapper = new ObjectMapper();
         List<ItemCarrinho> carrinhoObjeto;
         List<ComponenteDoPedido> componentes = new ArrayList<>();
-        final BigDecimal[] valorTotal = {BigDecimal.ZERO};
+        BigDecimal[] valorTotal = {BigDecimal.ZERO};
+
 
         if (usuario.getCarrinho() == null || usuario.getCarrinho().equals("{}"))
             carrinhoObjeto = new ArrayList<>();
@@ -232,21 +370,32 @@ public class ServicoDaLoja {
                 throw new RuntimeException(e);
             }
         }
+        ArrayList<Long> idDeProdutosComFretesCalculados = new ArrayList<>();
+
         carrinhoObjeto.forEach(itemCarrinhoObjeto -> {
             valorTotal[0] = valorTotal[0].add(itemCarrinhoObjeto.getPreco().multiply(BigDecimal.valueOf(itemCarrinhoObjeto.getQuantidade())));
             Optional<Produto> opt = repositorioDeProdutos.findById(itemCarrinhoObjeto.getId());
             if (opt.isEmpty()) {
                 throw new ErroPadrao(" Produto não existe mais");
             }
-            Estabelecimento estabelecimento = opt.get().getEstabelecimento();
 
-            SimulacaoEntregaDto simulacaoEntregaDto = calcularFrete(frete, enderecoCliente, estabelecimento);
+            Estabelecimento estabelecimento = repositorioDeEstabelecimentos.findById(opt.get().getEstabelecimentoId()).get();
+
+            SimulacaoEntregaDto simulacaoEntregaDto = calcularFrete(frete[0], enderecoCliente, estabelecimento);
             componentes.add(new ComponenteDoPedido(itemCarrinhoObjeto.getTitulo(),
                     StringUtils.formatPrice(itemCarrinhoObjeto.getPreco()
                             .multiply(BigDecimal.valueOf(itemCarrinhoObjeto.getQuantidade())))));
-            componentes.add(new ComponenteDoPedido("Frete", StringUtils.formatPrice(simulacaoEntregaDto.getPrecoEntrega())));
+            if (idDeProdutosComFretesCalculados.stream().filter(id -> id == itemCarrinhoObjeto.getId()).collect(Collectors.toList()).isEmpty()) {
+                componentes.add(new ComponenteDoPedido("Frete", StringUtils.formatPrice(simulacaoEntregaDto.getPrecoEntrega())));
+                idDeProdutosComFretesCalculados.add(itemCarrinhoObjeto.getId());
+            }
+            frete[0].set(frete[0].get().add(simulacaoEntregaDto.getPrecoEntrega()));
             valorTotal[0] = valorTotal[0].add(simulacaoEntregaDto.getPrecoEntrega());
         });
+        usuario.setSimulacaoPrecoFinalDaSimulacao(valorTotal[0]);
+        usuario.setSimulacaoFrete(frete[0].get());
+
+        repositorioDeUsuario.save(usuario);
         Endereco endereco = enderecoCliente;
         return new TelaEntregaCliente(new EnderecoDto(endereco.getId(), endereco.getEndereco(), endereco.getNumero(), endereco.getComplemento(),
                 endereco.getEnderecoCompleto(), endereco.getCep(), endereco.getRotulo(), endereco.getCidade(), endereco.getEstado()),
@@ -258,14 +407,17 @@ public class ServicoDaLoja {
 
         DistanciaDto distancia;
         distancia = servicoDoGoogleMaps.calcularDistancia(enderecoCliente, estabelecimento.getEndereco());
+
+        BigDecimal precoFrete = BigDecimal.valueOf(distancia.getDistanciaEmKm())
+                .multiply(BigDecimal.valueOf(1.15))
+                .multiply(BigDecimal.valueOf(2));
+        if (precoFrete.doubleValue() < 15.0) {
+            precoFrete = BigDecimal.valueOf(14.90);
+        }
         return new SimulacaoEntregaDto(
-
-                BigDecimal.valueOf(distancia.getDistanciaEmKm())
-                        .multiply(BigDecimal.valueOf(1.15))
-                        .multiply(BigDecimal.valueOf(2))
-
-                ,
+                precoFrete,
                 distancia.getDistanciaEmKm()
         );
+
     }
 }

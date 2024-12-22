@@ -54,6 +54,9 @@ public class Usuario implements UserDetails {
     @OneToOne(fetch = FetchType.EAGER)
     private Endereco endereco;
     private Boolean primeiraCompra;
+    private Boolean emCompra;
+    private String cpf;
+    private String telefone;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return getPermissoes();

@@ -80,7 +80,7 @@ public class ControladorDePagamento {
     @PostMapping("/pix/criar")
     public ResponseEntity<PixPaymentScreen> getPaymentAuthScreen(@RequestBody ReqCriacaoDePagamento dto,
                                                                  CustomServletWrapper request)  {
-        try {
+
             Long idUsuario = Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue()));
 
 
@@ -99,23 +99,7 @@ public class ControladorDePagamento {
                             mercadoPagoPixResponse
                     )
             );
-        } catch (IllegalArgumentException | OptimisticLockingFailureException e) {
-            String message = new StringBuilder
-                    ("Erro ao criar pedido: ").append(e.getMessage())
-                    .toString();
-            log.error(message);
-            throw new RuntimeException(message);
-        } catch (NoSuchElementException e) {
-            String message = new StringBuilder
-                    ("Totem inválido: ").append(e.getMessage())
-                    .toString();
-            log.error(message);
-            throw new ErroPadrao(message);
-        } catch (FeignException error) {
-            log.error(error.getMessage());
-            throw new ErroPadrao();
 
-        }
 
     }
     @ExceptionHandler(ExpiredJwtException.class)

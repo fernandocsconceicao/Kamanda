@@ -91,13 +91,13 @@ public class ServicoDeEstabelecimentos {
 
     public void updateEstablishmentProperties(Produto produto) {
 
-        List<Produto> establishmentProdutos = productRepository.findByEstablishmentId(produto.getEstabelecimento().getId());
+        List<Produto> establishmentProdutos = productRepository.findByEstablishmentId(produto.getEstabelecimentoId());
         boolean veganStamp = false;
         boolean vegetarianStamp = false;
 
 
         //TODO: Economizar chamadas ao banco
-        Estabelecimento estabelecimento = repositorioDeEstabelecimento.findById(produto.getEstabelecimento().getId()).get();
+        Estabelecimento estabelecimento = repositorioDeEstabelecimento.findById(produto.getEstabelecimentoId()).get();
         estabelecimento.setVeganStamp(veganStamp);
         estabelecimento.setVegetarianStamp(vegetarianStamp);
         repositorioDeEstabelecimento.save(estabelecimento);

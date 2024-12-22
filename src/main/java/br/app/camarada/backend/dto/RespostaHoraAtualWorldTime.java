@@ -11,5 +11,4 @@ import java.time.ZonedDateTime;
 @Data
 public class RespostaHoraAtualWorldTime {
     private ZonedDateTime datetime;
-    private Integer day_of_week;
 }

@@ -163,7 +163,11 @@ public class ServicoParaUsuarios implements UserDetailsService {
                 null,
                 estabelecimentoId,
                 Endereco.build(null),
-                true
+                true,
+                false,
+                null,
+                null
+
         );
 
         user = repositorioDeUsuario.save(user);

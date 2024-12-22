@@ -89,6 +89,7 @@ public class ControladorDaLoja {
         return ResponseEntity.ok().build();
     }
 
+
     @PostMapping("/produto/remover")
     public ResponseEntity<Void> removerProduto() {
         return ResponseEntity.ok().build();

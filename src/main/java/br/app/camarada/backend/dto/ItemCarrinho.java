@@ -14,5 +14,6 @@ public class ItemCarrinho {
     private String titulo;
     private Integer quantidade;
     private BigDecimal preco;
+    private Long idEstabelecimento;
 
 }

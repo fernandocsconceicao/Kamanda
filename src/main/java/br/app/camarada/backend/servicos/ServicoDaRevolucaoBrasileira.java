@@ -6,7 +6,6 @@ import br.app.camarada.backend.dto.*;
 import br.app.camarada.backend.dto.mensagem.Mensagem;
 import br.app.camarada.backend.entidades.*;
 import br.app.camarada.backend.enums.*;
-import br.app.camarada.backend.exception.ErroPadrao;
 import br.app.camarada.backend.repositorios.*;
 import br.app.camarada.backend.utilitarios.StringUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -133,7 +132,7 @@ public class ServicoDaRevolucaoBrasileira {
 
             Pedido pedido = repositorioDePedidos.findById(pedidoId).get();
             valorEntrega = pedido.getValorCorrida();
-            valorUbuntu = pedido.getValorUbuntu();
+            valorUbuntu = pedido.getValorKamanda();
             enderecoInicial = pedido.getEnderecoCliente();
             enderecoFinal = pedido.getEnderecoEstabelecimento();
             nomeCliente = pedido.getNomeCliente();

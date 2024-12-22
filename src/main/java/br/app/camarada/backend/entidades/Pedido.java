@@ -24,13 +24,10 @@ public class Pedido {
     private String nomeCliente;
     private LocalDateTime orderTime;
     private LocalDateTime acceptedTime;
-    private LocalDateTime deliveryTime;
-    private LocalDateTime prepareTime;
-    private Integer expectedTime;
     private Long idDoEstabelecimento;
     private String nome;
     private String celular;
-    private BigDecimal valorTotal; // TODO: Trocar para valor total dos produtos do pedido
+    private BigDecimal valorTotal;
     private Long regiaoId;
     private String titulo;
     private Long entregadorId;
@@ -41,14 +38,12 @@ public class Pedido {
     private BigDecimal valorCorrida;
     @ManyToOne
     private Pagamento pagamento;
-
     @Lob
     private String produtos;
     @Lob
     @Basic(fetch = FetchType.LAZY)
     private byte[] imagem;
     private BigDecimal valorEstabelecimento;
-    private Boolean compensacaoEstabelecimento;
-    private BigDecimal valorUbuntu;
+    private BigDecimal valorKamanda;
 
 }

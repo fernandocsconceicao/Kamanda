@@ -3,25 +3,24 @@ package br.app.camarada.backend.servicos;
 
 import br.app.camarada.backend.client.MercadoPagoClient;
 import br.app.camarada.backend.client.WorldTimeClient;
-import br.app.camarada.backend.dto.ReqCriacaoDePagamento;
-import br.app.camarada.backend.dto.RequisicaoPagarComSaldo;
-import br.app.camarada.backend.dto.RespostaHoraAtualWorldTime;
-import br.app.camarada.backend.dto.mercadopago.AdditionalInfo;
+import br.app.camarada.backend.dto.*;
 import br.app.camarada.backend.dto.mercadopago.MercadoPagoPixRequest;
 import br.app.camarada.backend.dto.mercadopago.MercadoPagoPixResponse;
 import br.app.camarada.backend.dto.mercadopago.Payer;
-import br.app.camarada.backend.entidades.ContaFinanceira;
-import br.app.camarada.backend.entidades.Pagamento;
-import br.app.camarada.backend.entidades.Usuario;
+import br.app.camarada.backend.entidades.*;
 import br.app.camarada.backend.enums.FormaDePagamento;
 import br.app.camarada.backend.enums.StatusPagamento;
+import br.app.camarada.backend.enums.StatusPedido;
 import br.app.camarada.backend.enums.TipoServico;
 import br.app.camarada.backend.exception.ErroPadrao;
 import br.app.camarada.backend.exception.ExcessaoDePagamentoCancelado;
 import br.app.camarada.backend.exception.PagamentoException;
 import br.app.camarada.backend.repositorios.RepositorioDeContaFinanceira;
 import br.app.camarada.backend.repositorios.RepositorioDePagamento;
+import br.app.camarada.backend.repositorios.RepositorioDeProdutos;
 import br.app.camarada.backend.repositorios.RepositorioDeUsuario;
+import br.app.camarada.backend.utilitarios.StringUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -31,10 +30,7 @@ import javax.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,11 +43,11 @@ public class ServicoDePagamentos {
     private final RepositorioDePagamento pagamentoRepository;
     private final RepositorioDeContaFinanceira repositorioDeContaFinanceira;
     private final RepositorioDeUsuario repositorioDeUsuario;
+    private final RepositorioDeProdutos repositorioDeProdutos;
     private final WorldTimeClient worldTimeClient;
-
-
-    private BigDecimal valorUbuntu;
-    private BigDecimal valorEntregador;
+    private final ServicoDaLoja servicoDaLoja;
+    private final ServicoDaRevolucaoBrasileira servicoDaRevolucaoBrasileira;
+    private final ServicoDeEstabelecimentos servicoDeEstabelecimentos;
 
 
     public Pagamento obterPagamento(Long codigoPix) {
@@ -90,18 +86,44 @@ public class ServicoDePagamentos {
             BigDecimal valorUbuntu = BigDecimal.valueOf(0);
             Pagamento pagamento = new Pagamento(null,
                     StatusPagamento.PENDENTE, retornoPagamento.transaction_amount,
-                    LocalDateTime.now(), retornoPagamento.id, usuarioId, valorUbuntu, TipoServico.ADICIONAR_SALDO, FormaDePagamento.PIX);
+                    LocalDateTime.now(), retornoPagamento.id, usuarioId, valorUbuntu, valorEntregador, TipoServico.ADICIONAR_SALDO, FormaDePagamento.PIX);
 
             pagamentoRepository.save(pagamento);
             return retornoPagamento;
         } else if (dto.getTipoServico() == TipoServico.COMPRA) {
-//            TODO: Implementar
+            Usuario usuario = repositorioDeUsuario.findById(usuarioId).get();
+            MercadoPagoPixResponse retornoPagamento = mpClient.criarPagamento(MercadoPagoPixRequest.builder()
+                            .transaction_amount(usuario.getSimulacaoPrecoFinalDaSimulacao().doubleValue())
+                            .payment_method_id("pix")
+
+                            .payer(
+                                    Payer.builder()
+                                            .email("fernando.csconceicao@outlook.com")
+                                            .first_name(nome)
+                                            .build()
+                            )
+                            .build(),
+                    "Bearer APP_USR-4728572378531572-080201-0887a380581d3b8def20f0b5c13c7771-468378537"
+//                    "Bearer TEST-4728572378531572-080201-2b53fbcfe6eac3583c6efd716966e89e-468378537"
+            );
+            BigDecimal valorEntregador = BigDecimal.valueOf(0);
+            BigDecimal valorUbuntu = BigDecimal.valueOf(0);
+            Pagamento pagamento = new Pagamento(null,
+                    StatusPagamento.PENDENTE, retornoPagamento.transaction_amount,
+                    LocalDateTime.now(), retornoPagamento.id, usuarioId, valorUbuntu, valorEntregador, TipoServico.COMPRA, FormaDePagamento.PIX);
+
+            usuario.setEmCompra(true);
+            repositorioDeUsuario.save(usuario);
+            pagamentoRepository.save(pagamento);
+            return retornoPagamento;
+
         }
 
         log.info("F - Pagamento Pix pedido ");
         return null;
 
     }
+
 
 
     public MercadoPagoPixResponse verificarPagamento(Long usuarioId, String codigo) {
@@ -131,8 +153,16 @@ public class ServicoDePagamentos {
                             repositorioDeContaFinanceira.save(contaFinanceira);
                             System.out.println("Saldo modificado");
                         }
+                        if (pagamento.getTipoServico() == TipoServico.COMPRA) {
+                            Usuario usuario = repositorioDeUsuario.findById(usuarioId).get();
+
+                            servicoDaLoja.criarPedido(usuario, StatusPedido.PEDIDO,pagamento);
+                            System.out.println("Pedido Feito");
+                        }
                         pagamento.setStatus(StatusPagamento.PAGO);
                         pagamentoRepository.save(pagamento);
+
+
                     }
                     if (mercadoPagoPixResponse.status.equals("cancelled") || mercadoPagoPixResponse.date_of_expiration.before(Date.from(Instant.now()))) {
                         pagamento = pagamentoRepository.findByPixId(Long.parseLong(codigo));
@@ -162,6 +192,8 @@ public class ServicoDePagamentos {
 
         throw new PagamentoException("Não foi possivel verificar seus pagamentos, cheque seus dados");
     }
+
+
 
     public MercadoPagoPixResponse getMercadoPagoPixResponse(String codigo) {
         MercadoPagoPixResponse mercadoPagoPixResponse = consultarPagamento(codigo);
@@ -206,6 +238,7 @@ public class ServicoDePagamentos {
         ContaFinanceira contaFinanceira = repositorioDeContaFinanceira.findById(idContaFinanceira).get();
         RespostaHoraAtualWorldTime horaAtual = worldTimeClient.buscarHora();
         BigDecimal saldo = contaFinanceira.getSaldo();
+        Usuario usuario = repositorioDeUsuario.findById(usuarioId).get();
         if (Double.valueOf(saldo.toString()) < Double.valueOf(dto.getValor().doubleValue())) {
             throw new ClassNotFoundException();
         } else {
@@ -215,7 +248,20 @@ public class ServicoDePagamentos {
             System.out.println("Requisição de entrega incabida");
 
         } else if (dto.getTipoServico().equals(TipoServico.COMPRA)) {
-            System.out.println("Requisição de compra incabida");
+            Pagamento pagamento = new Pagamento(
+                    null,
+                    StatusPagamento.PAGO,
+                    usuario.getSimulacaoPrecoFinalDaSimulacao().doubleValue(),
+                    LocalDateTime.now(),
+                    null,
+                    usuarioId,
+                    null,
+                    null,
+                    dto.getTipoServico(),
+                    FormaDePagamento.SALDO);
+
+
+            servicoDaLoja.criarPedido(usuario,StatusPedido.PEDIDO,pagamentoRepository.save(pagamento));
 
         }
 

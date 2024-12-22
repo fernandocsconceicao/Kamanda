@@ -21,15 +21,15 @@ public class Produto {
     @GeneratedValue
     private Long id;
     private String nome;
-    @ManyToOne
-    @NotNull
-    private Estabelecimento estabelecimento;
+
+    private Long estabelecimentoId;
     @Lob
     private byte[] imagem;
     private LocalDate dataDeCriacao;
     @Enumerated
     private CategoriaProduto categoriaProduto;
     private BigDecimal preco;
+    private BigDecimal precoVitrine;
     private Double avaliacao;
     private LocalDateTime dataExibicao;
     private Long idRegiao;
@@ -46,11 +46,12 @@ public class Produto {
         return new Produto(
                 null,
                 dto.getNome(),
-                estabelecimento,
+                estabelecimento.getId(),
                 dto.getImagem(),
                 LocalDate.now(),
                 dto.getCategoriaProduto(),
                 dto.getPreco(),
+                dto.getPreco().multiply(BigDecimal.valueOf(1.20)),
                 5.0d,
                 LocalDateTime.now(),
                 null,
