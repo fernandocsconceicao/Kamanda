@@ -63,15 +63,15 @@ public class ServicoParaFeed {
     }
 
     public PublicacaoDto obterPublicacao(RequisicaoParaObterPublicacao dto) {
-        System.out.println(dto.getIdPublicacao());
         Publicacao publicacao = repositorioDePublicacoes.findById(dto.getIdPublicacao()).get();
-        System.out.println("fdsfsd");
         String data;
         if (publicacao.getData() == null) {
             data = LocalDateTime.now().toString();
         } else {
             data = publicacao.getData().toString();
         }
+        publicacao.setVisualizacoes(publicacao.getVisualizacoes()+1);
+        repositorioDePublicacoes.save(publicacao);
         return new PublicacaoDto(publicacao.getId(),
                 publicacao.getTipoPublicacao(),
                 PerfilDto.montar(publicacao.getAutorPrincipal()),
@@ -80,7 +80,8 @@ public class ServicoParaFeed {
                 publicacao.getTexto(),
                 publicacao.getImagem(),
                 publicacao.getManchete(),
-                publicacao.getAutorPrincipal().getImagem()
+                publicacao.getAutorPrincipal().getImagem(),
+                publicacao.getVisualizacoes()
         );
 
     }
@@ -90,7 +91,7 @@ public class ServicoParaFeed {
         List<PublicacaoDto> dto= new ArrayList<>();
         byIdPerfil.forEach(p-> dto.add(new PublicacaoDto(p.getId(), p.getTipoPublicacao(),null,
                 p.getResumo(),p.getData().toString(),p.getTexto(),p.getImagem(),p.getManchete(),
-                p.getAutorPrincipal().getImagem())));
+                p.getAutorPrincipal().getImagem(),p.getVisualizacoes())));
         return new RespostaPublicacoes(dto,null,null,null,null,null,null);
 
     }

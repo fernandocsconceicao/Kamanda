@@ -16,4 +16,5 @@ public class PublicacaoDto {
     private byte[] imagem;
     private String manchete;
     private byte[] miniatura;
+    private Integer visualizacoes;
 }

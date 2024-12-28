@@ -39,7 +39,8 @@ public class RespostaPublicacoes {
                                 null,
                                 p.getImagem(),
                                 p.getManchete(),
-                                p.getAutorPrincipal().getImagem()
+                                p.getAutorPrincipal().getImagem(),
+                                p.getVisualizacoes()
                         )
                 )
         );
