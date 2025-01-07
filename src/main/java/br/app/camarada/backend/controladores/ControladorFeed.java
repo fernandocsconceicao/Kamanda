@@ -27,7 +27,7 @@ public class ControladorFeed {
     private ServicoDePagamentos servicoDePagamentos;
 
     @GetMapping("obter")
-    public ResponseEntity<RespostaPublicacoes> buscarFeed(CustomServletWrapper request) throws JsonProcessingException {
+    public ResponseEntity<RespostaPublicacoes> buscarFeed(CustomServletWrapper request) {
         DadosDeCabecalhos dadosDeCabecalhos =  DadosDeCabecalhos.builder()
                 .idPerfilPrincipal(Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue()).toString()))
                 .email(request.getHeader(Cabecalhos.EMAIL.getValue()))

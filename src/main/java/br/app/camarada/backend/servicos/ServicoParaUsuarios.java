@@ -2,6 +2,7 @@ package br.app.camarada.backend.servicos;
 
 
 //import br.app.camarada.backend.client.WorldTimeClient;
+
 import br.app.camarada.backend.dto.*;
 import br.app.camarada.backend.dto.google.RespostaLocalidadeGoogleMaps;
 import br.app.camarada.backend.entidades.*;
@@ -10,8 +11,6 @@ import br.app.camarada.backend.enums.TipoConta;
 import br.app.camarada.backend.exception.EmailJaCadastradoException;
 import br.app.camarada.backend.repositorios.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.SimpleMailMessage;
@@ -29,9 +28,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
-@Transactional
 @Slf4j
 @RequiredArgsConstructor
 public class ServicoParaUsuarios implements UserDetailsService {
@@ -40,7 +39,7 @@ public class ServicoParaUsuarios implements UserDetailsService {
     private final PasswordEncoder encoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-//    private final WorldTimeClient worldTimeClient;
+    //    private final WorldTimeClient worldTimeClient;
     private final RepositorioDeUsuario repositorioDeUsuario;
     private final ServicoDePreferencias servicoDePreferencias;
     private final ServicoParaPerfil servicoParaPerfil;
@@ -51,7 +50,7 @@ public class ServicoParaUsuarios implements UserDetailsService {
     private final RepositorioDeEnderecos repositorioDeEnderecos;
     private final ServicoDeEstabelecimentos servicoDeEstabelecimentos;
     private final ServicoDoGoogleMaps servicoDoGoogleMaps;
-
+    private final RepositorioDePermissao repositorioDePermissao;
     private ObjectMapper objectMapper = new ObjectMapper();
 
     public AuthenticationResponseDto authenticate(RequisicaoDeAutenticacao dto) {
@@ -68,9 +67,9 @@ public class ServicoParaUsuarios implements UserDetailsService {
             throw new UsernameNotFoundException("Usuário não encontrado : " + dto.getEmail());
         }
         String token = jwtService.gerarToken(user);
-        if( user.getEstabelecimentoId()!= null){
+        if (user.getEstabelecimentoId() != null) {
             Estabelecimento estabelecimento = repositorioDeEstabelecimentos.findById(user.getEstabelecimentoId()).get();
-            imagemPerfil= estabelecimento.getLogo();
+            imagemPerfil = estabelecimento.getLogo();
         }
 
         return new AuthenticationResponseDto(
@@ -85,7 +84,8 @@ public class ServicoParaUsuarios implements UserDetailsService {
 
         );
     }
-    public void editarEndereco(ReqEdicaoEndereco dto,DadosDeCabecalhos dadosDeCabecalhos) {
+
+    public void editarEndereco(ReqEdicaoEndereco dto, DadosDeCabecalhos dadosDeCabecalhos) {
         Endereco endereco = repositorioDeEnderecos.findById(dadosDeCabecalhos.getIdEndereco()).get();
 
         String enderecoCompletoParaGM = dto.getEndereco() + ", " + dto.getCidade() + ", " + dto.getEstado();
@@ -106,7 +106,7 @@ public class ServicoParaUsuarios implements UserDetailsService {
 
         Endereco save = repositorioDeEnderecos.save(endereco);
     }
-    @Transactional
+//    @Transactional
     public AuthenticationResponseDto registrarUsuario(RequisicaoRegistro dto) {
         Usuario byEmail = repositorioDeUsuario.findByEmail(dto.getEmail());
         if (byEmail != null) {
@@ -128,7 +128,7 @@ public class ServicoParaUsuarios implements UserDetailsService {
 
         mensagem.setFrom("fernando");
         mensagem.setTo(dto.getEmail());
-        mensagem.setText("Seu código de confirmação de email da conta Ubuntu é " + codigo);
+        mensagem.setText("Seu código de confirmação de email da conta Kamanda é " + codigo);
         mensagem.setSubject("Confirmação de email");
 
         Preferencias preferencias = servicoDePreferencias.salvar(new Preferencias());
@@ -138,13 +138,16 @@ public class ServicoParaUsuarios implements UserDetailsService {
             estabelecimentoId = estabelecimento.getId();
             plano = dto.getPropriedadeDeEstabelecimentos().getPlanoEstabelecimento();
         }
+        List<Permissao> all = repositorioDePermissao.findAll();
+        List<Permissao> permissoes = all.stream().filter(permissao1 -> permissao1.getNome().equals("USUARIO")).collect(Collectors.toList());
+
         Usuario user = new Usuario(
                 null,
                 encoder.encode(dto.getSenha()),
                 dto.getTipoConta(),
                 dto.getEmail(),
                 dto.getNome(),
-                null,
+                permissoes,
                 true,
                 codigo,
                 false,
@@ -162,29 +165,27 @@ public class ServicoParaUsuarios implements UserDetailsService {
                 null,
                 null,
                 estabelecimentoId,
-                Endereco.build(null),
+                null,
                 true,
                 false,
                 null,
                 null
 
         );
-
-        user = repositorioDeUsuario.save(user);
-
+        repositorioDeUsuario.save(user);
+        user = repositorioDeUsuario.findByEmail(user.getEmail());
+        Endereco endereco = Endereco.build(null);
         preferencias.setUsuarioId(user.getId());
         servicoDePreferencias.salvar(preferencias);
-//        RespostaHoraAtualWorldTime respostaHoraAtualWorldTime = worldTimeClient.buscarHora();
         user.setContaFinanceira(
                 repositorioDeContaFinanceira.save(
-                new ContaFinanceira(
-                null,
-                user.getId(),
-                BigDecimal.ZERO,
-//                null,respostaHoraAtualWorldTime.getDatetime().toLocalDateTime()))
-                null, LocalDateTime.now()))
+                        new ContaFinanceira(
+                                null,
+                                user.getId(),
+                                BigDecimal.ZERO,
+                                null, LocalDateTime.now()))
         );
-        Endereco endereco = user.getEndereco();
+
         endereco.setUsuario(user);
         repositorioDeEnderecos.save(endereco);
         Perfil perfil = servicoParaPerfil.criarPerfil(user);
@@ -194,14 +195,17 @@ public class ServicoParaUsuarios implements UserDetailsService {
             estabelecimento.setUsuarioId(user.getId());
         }
 
+        System.out.println("1");
 
         ArrayList<Perfil> listaDePerfis = new ArrayList<>();
         listaDePerfis.add(perfil);
         user.setPerfil(listaDePerfis);
         user.setPerfilPrincipalId(perfil.getId());
-        repositorioDeUsuario.save(user);
+        user.setPermissoes(new ArrayList<>());
+        System.out.println("2");
+        Usuario save = repositorioDeUsuario.save(user);
         String token = jwtService.gerarToken(user);
-
+        System.out.println("3");
 
         return new AuthenticationResponseDto(
                 token,
@@ -238,13 +242,10 @@ public class ServicoParaUsuarios implements UserDetailsService {
         Usuario user = obterUsuario(username);
         if (user == null) {
             log.warn("User not Found");
-            throw
-                    new UsernameNotFoundException("Usuário não encontrado");
+            throw new UsernameNotFoundException("Usuário não encontrado");
         }
         return user;
     }
-
-
 
 
     public Boolean existeAdminCadastrado() {
@@ -361,15 +362,15 @@ public class ServicoParaUsuarios implements UserDetailsService {
 
     public Boolean existeUsuarioCadastrado(String email) {
         Usuario byEmail = repositorioDeUsuario.findByEmail(email);
-        return byEmail !=null;
+        return byEmail != null;
     }
 
     public EnderecoDto obterEndereco(DadosDeCabecalhos dadosDeCabecalhos) {
         Usuario usuario = repositorioDeUsuario.findById(dadosDeCabecalhos.getIdUsuario()).get();
-        Endereco endereco = usuario.getEndereco();
-        if(endereco== null){
+        Endereco endereco = repositorioDeEnderecos.findById(usuario.getEnderecoId()).get();
+        if (endereco == null) {
             endereco = repositorioDeEnderecos.save(Endereco.build(usuario));
-            usuario.setEndereco(endereco);
+            usuario.setEnderecoId(endereco.getId());
             repositorioDeUsuario.save(usuario);
         }
 

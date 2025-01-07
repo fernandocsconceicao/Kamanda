@@ -1,28 +1,9 @@
 package br.app.camarada.backend.servicos;
 
-import br.app.camarada.backend.dto.*;
-import br.app.camarada.backend.entidades.*;
-import br.app.camarada.backend.enums.PlanoEstabelecimento;
-import br.app.camarada.backend.enums.StatusEntregaEmFila;
-import br.app.camarada.backend.enums.StatusEntregador;
-import br.app.camarada.backend.enums.StatusPedido;
-import br.app.camarada.backend.exception.ErroPadrao;
 import br.app.camarada.backend.repositorios.RepositorioDePedidos;
-import br.app.camarada.backend.repositorios.RepositorioDeUsuario;
-import br.app.camarada.backend.utilitarios.StringUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

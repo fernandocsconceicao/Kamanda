@@ -98,7 +98,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String token;
                 String userEmail;
                 try {
-
+                    System.out.println();
                     token = filterUtil.extrairToken(request);
                     userEmail = jwtService.extrairNomeDeUsuario(token);
                 } catch (NullPointerException | MalformedJwtException e) {
@@ -142,9 +142,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (userDetails.getEstabelecimentoId() != null)
             httpReq.addHeader(Cabecalhos.ESTABELECIMENTO.getValue(), userDetails.getEstabelecimentoId().toString());
 
-        if (userDetails.getEndereco() != null)
-            httpReq.addHeader(Cabecalhos.ENDERECO.getValue(), userDetails.getEndereco().getId().toString());
+        if (userDetails.getEnderecoId() != null)
+            httpReq.addHeader(Cabecalhos.ENDERECO.getValue(), userDetails.getEnderecoId().toString());
 
         return httpReq;
     }
+
 }

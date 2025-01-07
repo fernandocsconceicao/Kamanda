@@ -13,6 +13,7 @@ import java.util.ArrayList;
 public interface RepositorioDeUsuario extends JpaRepository<Usuario, Long> {
 
     Usuario findByEmail(String email);
+
     ArrayList<Usuario> findAll();
 
     Usuario findByEstabelecimentoId(Long idDeEstabelecimento);

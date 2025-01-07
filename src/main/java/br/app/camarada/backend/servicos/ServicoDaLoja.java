@@ -134,10 +134,21 @@ public class ServicoDaLoja {
         produtos.forEach(p -> {
             p.setDataExibicao(LocalDateTime.now());
         });
-
+//fsdfs
         repositorioDeProdutos.saveAll(produtos);
+        List<Estabelecimento> bestRatedEstablishment = repositorioDeEstabelecimentos.findBestRatedEstablishment();
+        List<VitrineEstabelecimentoDto> vitrineEstabelecimento = new ArrayList<>();
+        bestRatedEstablishment.forEach(e -> {
+            List<Produto> produtosDoEstabelecimento = repositorioDeProdutos.findByEstablishmentId(e.getId());
+            ArrayList<ProdutoDto> produtosDeEstabelecimentosDto = new ArrayList<>();
 
-        return new TelaVitrine(produtoDtos);
+            produtosDoEstabelecimento.forEach(p -> produtosDeEstabelecimentosDto.add (new ProdutoDto(
+                    p.getId(),p.getNome(),p.getImagem(),StringUtils.formatPrice(p.getPrecoVitrine())
+                    )
+            ));
+            vitrineEstabelecimento.add( new VitrineEstabelecimentoDto(e.getId(), e.getName(),e.getLogo(),produtosDeEstabelecimentosDto ));
+        });
+        return new TelaVitrine(produtoDtos,vitrineEstabelecimento);
     }
 
     public void adicionarAoCarrinho(AdicionamentoDeProdutoAoCarrinho dto, DadosDeCabecalhos dadosDeCabecalhos) {
@@ -283,8 +294,9 @@ public class ServicoDaLoja {
                             e.printStackTrace();
                         }
                         SimulacaoEntregaDto simulacaoEntregaDto;
+                        Endereco endereco = repositorioDeEnderecos.findById(usuario.getEnderecoId()).get();
                         try {
-                            simulacaoEntregaDto = calcularFrete(frete, usuario.getEndereco(), estabelecimento);
+                            simulacaoEntregaDto = calcularFrete(frete, endereco, estabelecimento);
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
@@ -306,7 +318,7 @@ public class ServicoDaLoja {
                                         finalTitulo,
                                         null,
                                         estabelecimento.getEndereco().getEnderecoCompleto(),
-                                        usuario.getEndereco().getEnderecoCompleto(),
+                                        endereco.getEnderecoCompleto(),
                                         null,
                                         null,
                                         simulacaoEntregaDto.getPrecoEntrega(),
@@ -345,9 +357,9 @@ public class ServicoDaLoja {
     }
 
     public TelaEntregaCliente obterTelaDeEntregaParaCliente(DadosDeCabecalhos dadosDeCabecalhos) {
-
         Usuario usuario = repositorioDeUsuario.findById(dadosDeCabecalhos.getIdUsuario()).get();
-        Endereco enderecoCliente = usuario.getEndereco();
+        Endereco enderecoUsuario = repositorioDeEnderecos.findById(usuario.getEnderecoId()).get();
+        Endereco enderecoCliente = enderecoUsuario;
 
         final AtomicReference<BigDecimal>[] frete = new AtomicReference[]{new AtomicReference<>(new BigDecimal(0))};
 

@@ -2,9 +2,11 @@ package br.app.camarada.backend;
 
 import br.app.camarada.backend.dto.RequisicaoRegistro;
 import br.app.camarada.backend.entidades.Caixa;
+import br.app.camarada.backend.entidades.Permissao;
 import br.app.camarada.backend.entidades.Regiao;
 import br.app.camarada.backend.enums.TipoConta;
 import br.app.camarada.backend.repositorios.CaixaRepositorio;
+import br.app.camarada.backend.repositorios.RepositorioDePermissao;
 import br.app.camarada.backend.repositorios.RepositorioDeRegiao;
 import br.app.camarada.backend.servicos.ServicoParaUsuarios;
 import lombok.AllArgsConstructor;
@@ -21,6 +23,7 @@ import java.util.List;
 public class BackendApplication  implements CommandLineRunner {
     private ServicoParaUsuarios servicoParaUsuarios;
     private CaixaRepositorio caixaRepositorio;
+    private RepositorioDePermissao repositorioDePermissao;
     private RepositorioDeRegiao regiaoRepository;
 
     public static void main(String[] args) {
@@ -43,6 +46,12 @@ public class BackendApplication  implements CommandLineRunner {
                         regiaoRepository.save(new Regiao(null, null, nomeRegiao, null));
                     }
             );
+        }
+
+        if(repositorioDePermissao.findAll().isEmpty()){
+            ArrayList<Permissao> objects = new ArrayList<>();
+            repositorioDePermissao.save(new Permissao(null, "USUARIO"));
+            repositorioDePermissao.save(new Permissao(null, "ADMIN"));
         }
 
         if (caixaRepositorio.findById(1L).isEmpty()) {

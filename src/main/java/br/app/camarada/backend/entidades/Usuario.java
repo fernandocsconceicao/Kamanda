@@ -18,8 +18,9 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "usuario")
 public class Usuario implements UserDetails {
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
     private String senha;
@@ -28,7 +29,7 @@ public class Usuario implements UserDetails {
     @Column(unique = true)
     private String email;
     private String nome;
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.EAGER)
     private List<Permissao> permissoes;
     private Boolean primeiroAcesso;
     private String codigoConfirmacao;
@@ -51,8 +52,7 @@ public class Usuario implements UserDetails {
     private BigDecimal simulacaoFrete;
     private Long estabelecimentoId;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    private Endereco endereco;
+    private Long enderecoId;
     private Boolean primeiraCompra;
     private Boolean emCompra;
     private String cpf;

@@ -6,10 +6,12 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class TelaVitrine {
+public class VitrineEstabelecimentoDto {
+    private Long id;
+    private String nome;
+    private byte[] imagem;
     private List<ProdutoDto> produtos;
-    private List<VitrineEstabelecimentoDto> estabelecimentos;
 }

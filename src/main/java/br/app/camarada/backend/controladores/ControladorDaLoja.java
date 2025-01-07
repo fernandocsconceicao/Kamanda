@@ -20,14 +20,14 @@ import org.springframework.web.bind.annotation.*;
 public class ControladorDaLoja {
     private ServicoDaLoja servicoDaLoja;
 
-    @GetMapping(value = "vitrine", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "vitrine")
     public ResponseEntity<TelaVitrine> obterVitrine(CustomServletWrapper request) throws JsonProcessingException {
         long l = Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue()));
         TelaVitrine telaVitrine =
                 servicoDaLoja.obterVitrine(
                         DadosDeCabecalhos.builder().idUsuario(l).build()
                 );
-        System.out.println(new ObjectMapper(). writeValueAsString(telaVitrine));
+        System.out.println(new ObjectMapper(). writeValueAsString(telaVitrine.getEstabelecimentos()));
         return ResponseEntity.ok().body(telaVitrine);
     }
 
