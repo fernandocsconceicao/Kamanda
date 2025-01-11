@@ -17,13 +17,17 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 public class PerfilDto {
+    private Long id;
     private String nome;
     private Boolean verificado;
     private TipoPerfil tipoPerfil;
     private List<BioPerfilDto> bio;
     private String nomeUsuario;
-    private String resumo;
+    private String descricao;
     private String telefone;
+    private String idade;
+    private String chavePix;
+    private String emailComercial;
 
 
     public static PerfilDto montar(Perfil perfil) {
@@ -75,6 +79,8 @@ public class PerfilDto {
                             rotulos
                     ));
         }
-        return new PerfilDto(perfil.getNome(), perfil.getVerificado(), perfil.getTipoPerfil(), bio, perfil.getNomeUsuario(), perfil.getResumo(), perfil.getTelefone());
+        return new PerfilDto(perfil.getId(), perfil.getNome(), perfil.getVerificado(), perfil.getTipoPerfil(), bio,
+                perfil.getNomeUsuario(), perfil.getResumo(), perfil.getTelefone(),perfil.getIdade().toString(),
+                perfil.getChavePix(), perfil.getEmailComercial());
     }
 }

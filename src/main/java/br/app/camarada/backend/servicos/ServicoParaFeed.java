@@ -1,13 +1,11 @@
 package br.app.camarada.backend.servicos;
 
-import br.app.camarada.backend.dto.DadosDeCabecalhos;
-import br.app.camarada.backend.dto.PerfilDto;
-import br.app.camarada.backend.dto.PublicacaoDto;
-import br.app.camarada.backend.dto.RespostaFeed;
+import br.app.camarada.backend.dto.*;
 import br.app.camarada.backend.dto.mercadopago.MercadoPagoPixResponse;
 import br.app.camarada.backend.dto.publicacao.req.RequisicaoParaObterPublicacao;
 import br.app.camarada.backend.dto.publicacao.res.RespostaPublicacoes;
 import br.app.camarada.backend.entidades.Pagamento;
+import br.app.camarada.backend.entidades.Perfil;
 import br.app.camarada.backend.entidades.Publicacao;
 import br.app.camarada.backend.enums.FormaDePagamento;
 import br.app.camarada.backend.enums.TextosBundle;
@@ -29,7 +27,7 @@ public class ServicoParaFeed {
     private RepositorioDePublicacoes repositorioDePublicacoes;
     private ServicoDePagamentos servicoDePagamentos;
 
-    public RespostaFeed buscarPublicacoes(DadosDeCabecalhos dadosDeCabecalhos) {
+    public RespostaFeed buscarPublicacoes(DadosDeCabecalhos dadosDeCabecalhos, RequisicaoFeed dto) {
         List<Pagamento> pagamentos = servicoDePagamentos.verificarPagamentosPendentes(dadosDeCabecalhos.getIdUsuario());
         boolean pagamentosPendentes = false;
         String codigoPix = null;
@@ -57,9 +55,32 @@ public class ServicoParaFeed {
                 tipoErro = TipoErro.INFORMATIVO;
             }
         }
-        List<Publicacao> publicacoes = repositorioDePublicacoes.findAll();
 
-        return new RespostaFeed(publicacoes, pagamentosPendentes, codigoPix, tituloDoErro, descricaoDoErro, tipoErro, dadosDeCabecalhos.getPrimeiroAcesso(), tipoServico);
+        List<Publicacao> publicacoes;
+
+        if (dto.getCategoria() != null) {
+            publicacoes = repositorioDePublicacoes.obterPorCategoria(dto.getCategoria().obterEnumeracao());
+        }else{
+            publicacoes = repositorioDePublicacoes.findAll();
+        }
+
+        List<PublicacaoDto> publicacoesDto = new ArrayList<>();
+        publicacoes.forEach(p -> {
+            Perfil autorPrincipal = p.getAutorPrincipal();
+            publicacoesDto.add(new PublicacaoDto(p.getId(), p.getTipoPublicacao(),
+                    new PerfilPublicacaoDto(autorPrincipal.getId(), autorPrincipal.getNome(), autorPrincipal.getVerificado(), autorPrincipal.getNomeUsuario(), autorPrincipal.getImagem())
+                    , p.getResumo()
+                    , p.getData().toString()
+                    , p.getTexto()
+                    , p.getImagem()
+                    , p.getManchete()
+                    , autorPrincipal.getImagem()
+                    , p.getVisualizacoes()
+                    ,
+                    p.getCategoria()));
+        });
+
+        return new RespostaFeed(publicacoesDto, pagamentosPendentes, codigoPix, tituloDoErro, descricaoDoErro, tipoErro, dadosDeCabecalhos.getPrimeiroAcesso(), tipoServico);
     }
 
     public PublicacaoDto obterPublicacao(RequisicaoParaObterPublicacao dto) {
@@ -70,29 +91,31 @@ public class ServicoParaFeed {
         } else {
             data = publicacao.getData().toString();
         }
-        publicacao.setVisualizacoes(publicacao.getVisualizacoes()+1);
+        publicacao.setVisualizacoes(publicacao.getVisualizacoes() + 1);
         repositorioDePublicacoes.save(publicacao);
         return new PublicacaoDto(publicacao.getId(),
                 publicacao.getTipoPublicacao(),
-                PerfilDto.montar(publicacao.getAutorPrincipal()),
+                PerfilPublicacaoDto.montar(publicacao.getAutorPrincipal()),
                 publicacao.getResumo(),
                 data.toString(),
                 publicacao.getTexto(),
                 publicacao.getImagem(),
                 publicacao.getManchete(),
                 publicacao.getAutorPrincipal().getImagem(),
-                publicacao.getVisualizacoes()
+                publicacao.getVisualizacoes(),
+                publicacao.getCategoria()
         );
 
     }
 
     public RespostaPublicacoes buscarPublicacoesDePerfil(DadosDeCabecalhos dadosDeCabecalhos) {
         List<Publicacao> byIdPerfil = repositorioDePublicacoes.findByIdPerfil(dadosDeCabecalhos.getIdPerfilPrincipal());
-        List<PublicacaoDto> dto= new ArrayList<>();
-        byIdPerfil.forEach(p-> dto.add(new PublicacaoDto(p.getId(), p.getTipoPublicacao(),null,
-                p.getResumo(),p.getData().toString(),p.getTexto(),p.getImagem(),p.getManchete(),
-                p.getAutorPrincipal().getImagem(),p.getVisualizacoes())));
-        return new RespostaPublicacoes(dto,null,null,null,null,null,null);
+        List<PublicacaoDto> dto = new ArrayList<>();
+        byIdPerfil.forEach(p -> dto.add(new PublicacaoDto(p.getId(), p.getTipoPublicacao(), null,
+                p.getResumo(), p.getData().toString(), p.getTexto(), p.getImagem(), p.getManchete(),
+                p.getAutorPrincipal().getImagem(), p.getVisualizacoes(),
+                p.getCategoria())));
+        return new RespostaPublicacoes(dto, null, null, null, null, null, null);
 
     }
 }

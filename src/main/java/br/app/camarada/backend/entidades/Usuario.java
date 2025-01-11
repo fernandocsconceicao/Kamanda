@@ -57,6 +57,7 @@ public class Usuario implements UserDetails {
     private Boolean emCompra;
     private String cpf;
     private String telefone;
+    private Boolean primeiraVisualizaçãoDoPerfil;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return getPermissoes();

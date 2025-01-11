@@ -1,5 +1,6 @@
 package br.app.camarada.backend.dto.publicacao.req;
 
+import br.app.camarada.backend.enums.CategoriaPublicacao;
 import br.app.camarada.backend.enums.TipoPublicacao;
 import lombok.Data;
 import org.springframework.lang.Nullable;
@@ -15,5 +16,6 @@ public class RequisicaoDePostagem {
     private String resumo;
     private byte[] imagem;
     private String manchete;
+    private CategoriaPublicacao categoriaPublicacao;
 
 }

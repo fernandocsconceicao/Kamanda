@@ -1,6 +1,6 @@
 package br.app.camarada.backend.dto.publicacao.res;
 
-import br.app.camarada.backend.dto.PerfilDto;
+import br.app.camarada.backend.dto.PerfilPublicacaoDto;
 import br.app.camarada.backend.dto.PublicacaoDto;
 import br.app.camarada.backend.entidades.Publicacao;
 import br.app.camarada.backend.enums.TipoErro;
@@ -22,7 +22,7 @@ public class RespostaPublicacoes {
     private TipoErro tipoErro;
     private TipoServico tipoServico;
 
-    public static RespostaPublicacoes montarPublicacaoReduzida(List<Publicacao> publicacoes,
+    public static RespostaPublicacoes montarPublicacaoReduzida(List<PublicacaoDto> publicacoes,
                                                                Boolean pagamentoPendente,
                                                                String codigo,
                                                                String erroTitulo,
@@ -30,21 +30,8 @@ public class RespostaPublicacoes {
                                                                TipoErro tipoErro,
                                                                TipoServico tipoServico
     ) {
-        List<PublicacaoDto> retorno = new ArrayList<>();
-        publicacoes.forEach(p -> retorno.add(new PublicacaoDto(p.getId(),
-                                p.obterTipoDeConteudo(),
-                                PerfilDto.montar(p.obterAutorPrincipal()),
-                                p.getResumo(),
-                                "28-11-2024",
-                                null,
-                                p.getImagem(),
-                                p.getManchete(),
-                                p.getAutorPrincipal().getImagem(),
-                                p.getVisualizacoes()
-                        )
-                )
-        );
 
-        return new RespostaPublicacoes(retorno, pagamentoPendente, codigo, erroTitulo, erroDescricao, tipoErro, tipoServico);
+
+        return new RespostaPublicacoes(publicacoes, pagamentoPendente, codigo, erroTitulo, erroDescricao, tipoErro, tipoServico);
     }
 }

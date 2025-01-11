@@ -169,7 +169,8 @@ public class ServicoParaUsuarios implements UserDetailsService {
                 true,
                 false,
                 null,
-                null
+                null,
+                true
 
         );
         repositorioDeUsuario.save(user);

@@ -1,5 +1,6 @@
 package br.app.camarada.backend.entidades;
 
+import br.app.camarada.backend.enums.CategoriaPublicacao;
 import br.app.camarada.backend.enums.TipoPublicacao;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,6 +33,8 @@ public class Publicacao implements Conteudo {
     private Integer curtidas;
     private String manchete;
     private Long idPerfil;
+    @Enumerated
+    private CategoriaPublicacao categoria;
 
     public static Publicacao montar(String texto,
                                     TipoPublicacao tipo,
@@ -40,8 +43,9 @@ public class Publicacao implements Conteudo {
                                     String resumo,
                                     byte[] imagem,
                                     String manchete,
-                                    Long idPerfil) {
-        return new Publicacao(null, texto, tipo, autorPrincipal,data,resumo,imagem, 0,0,0,manchete,idPerfil);
+                                    Long idPerfil,
+                                    CategoriaPublicacao categoriaPublicacao) {
+        return new Publicacao(null, texto, tipo, autorPrincipal,data,resumo,imagem, 0,0,0,manchete,idPerfil,categoriaPublicacao);
     }
 
     @Override

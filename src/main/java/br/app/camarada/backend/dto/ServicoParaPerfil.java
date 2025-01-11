@@ -65,7 +65,8 @@ public class ServicoParaPerfil {
                     dto.getResumo(),
                     dto.getImagem(),
                     dto.getManchete(),
-                    perfilPessoal.get().getId()
+                    perfilPessoal.get().getId(),
+                    dto.getCategoriaPublicacao()
             );
             repositorioDePublicacoes.save(publicacao);
             ArrayList<String> tags = new ArrayList<>();
@@ -174,6 +175,8 @@ public class ServicoParaPerfil {
             perfil.setIdade(req.getIdade());
             perfil.setEmailComercial(req.getEmailComercial());
             perfil.setChavePix(req.getChavePix());
+            perfil.setResumo(req.getDescricao());
+
             repositorioDePerfil.save(perfil);
             return true;
         }

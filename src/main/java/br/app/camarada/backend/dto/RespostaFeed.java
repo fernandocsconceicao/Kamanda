@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RespostaFeed {
-    private List<Publicacao> publicacoes;
+    private List<PublicacaoDto> publicacoes;
     private Boolean pagamentoPendente;
     private String codigo;
     private String erroTitulo;

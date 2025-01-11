@@ -53,6 +53,16 @@ public class ControladorDePerfil {
         System.out.println(json);
         return ResponseEntity.ok().body(perfilDto);
     }
+    @GetMapping("/obtertelaedicao")
+    public ResponseEntity<PerfilDto> obtertelaedicao(CustomServletWrapper request) throws JsonProcessingException {
+        PerfilDto perfilDto = servicoParaPerfil.obterPerfil(Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue())));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(perfilDto);
+        System.out.println(json);
+
+        return ResponseEntity.ok().body(perfilDto);
+    }
     @GetMapping("/obterpublicacoes")
     public ResponseEntity<RespostaPublicacoes> obterPublicaoes(CustomServletWrapper request) throws JsonProcessingException {
         DadosDeCabecalhos dadosDeCabecalhos =  DadosDeCabecalhos.builder()

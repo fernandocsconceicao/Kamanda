@@ -1,5 +1,6 @@
 package br.app.camarada.backend.dto;
 
+import br.app.camarada.backend.enums.CategoriaPublicacao;
 import br.app.camarada.backend.enums.TipoPublicacao;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,7 +10,7 @@ import lombok.Data;
 public class PublicacaoDto {
     private Long id;
     private TipoPublicacao tipoPublicacao;
-    private PerfilDto autorPrincipal;
+    private PerfilPublicacaoDto autorPrincipal;
     private String resumo;
     private String data;
     private String texto;
@@ -17,4 +18,5 @@ public class PublicacaoDto {
     private String manchete;
     private byte[] miniatura;
     private Integer visualizacoes;
+    private CategoriaPublicacao categoria;
 }

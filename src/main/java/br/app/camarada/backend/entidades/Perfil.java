@@ -53,5 +53,6 @@ public class Perfil {
     private String emailComercial;
     private String chavePix;
     private String instagram;
+    private String descricao;
 
 }
