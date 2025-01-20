@@ -108,6 +108,7 @@ public class ServicoDePagamentos {
                     LocalDateTime.now(), retornoPagamento.id, usuarioId, valorUbuntu, valorEntregador, TipoServico.COMPRA, FormaDePagamento.PIX);
 
             usuario.setEmCompra(true);
+            usuario.setCarrinho("{}");
             repositorioDeUsuario.save(usuario);
             pagamentoRepository.save(pagamento);
             return retornoPagamento;

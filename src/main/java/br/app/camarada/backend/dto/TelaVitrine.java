@@ -12,4 +12,5 @@ import java.util.List;
 public class TelaVitrine {
     private List<ProdutoDto> produtos;
     private List<VitrineEstabelecimentoDto> estabelecimentos;
+    private Boolean primeiraCompra;
 }

@@ -19,8 +19,9 @@ public class ServicoDeEmail implements IServicoDeEmail {
     @Override
     public boolean enviarEmail(SimpleMailMessage mensagem) {
 
-        mensagem.setFrom("naoresponda@ubuntu.app.br");
-        new JavaMailSenderImpl().send(mensagem);
+        mensagem.setFrom("naoresponda@kamanda.app.br");
+        JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
+        javaMailSender.send(mensagem);
         return true;
     }
 

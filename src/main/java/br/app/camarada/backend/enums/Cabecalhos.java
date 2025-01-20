@@ -9,7 +9,10 @@ public enum Cabecalhos {
      CONTA_FINANCEIRA("x-conta-financeira"),
      PERFIL("x-perfil"),
     ESTABELECIMENTO("x-estabelecimento"),
-    ENDERECO("x-endereco");
+    PRIMEIRA_COMPRA("x-primeira_compra"),
+    ENDERECO("x-endereco"),
+    EMAIL_AUTENTICADO("x-email-autenticado");
+
     private final String value;
 
     Cabecalhos(String value){

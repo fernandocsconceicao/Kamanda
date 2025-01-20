@@ -15,4 +15,5 @@ public class DadosDeCabecalhos {
     private Long idRegiao;
     private Long idEstabecimento;
     private Long idEndereco;
+    private Boolean primeiraCompra;
 }

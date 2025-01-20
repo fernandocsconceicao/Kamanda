@@ -135,7 +135,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         httpReq.addHeader(Cabecalhos.NOME.getValue(), userDetails.getNome());
         if (userDetails.getContaFinanceira() != null)
             httpReq.addHeader(Cabecalhos.CONTA_FINANCEIRA.getValue(), userDetails.getContaFinanceira().getId().toString());
-
+        if (userDetails.getPrimeiraCompra() != null){
+            httpReq.addHeader(Cabecalhos.PRIMEIRA_COMPRA.getValue(), userDetails.getPrimeiraCompra().toString());
+        } else {
+            servicoParaUsuarios.definirPrimeiraCompra(userDetails.getId(),true);
+            httpReq.addHeader(Cabecalhos.PRIMEIRA_COMPRA.getValue(), "true");
+        }
+        httpReq.addHeader(Cabecalhos.EMAIL_AUTENTICADO.getValue(), userDetails.getEmailConfirmado().toString());
         httpReq.addHeader(Cabecalhos.USUARIO.getValue(), userDetails.getId().toString());
         if (userDetails.getPerfilPrincipalId() != null)
             httpReq.addHeader(Cabecalhos.PERFIL.getValue(), userDetails.getPerfilPrincipalId().toString());

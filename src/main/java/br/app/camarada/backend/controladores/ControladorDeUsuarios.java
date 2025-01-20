@@ -3,6 +3,7 @@ package br.app.camarada.backend.controladores;
 import br.app.camarada.backend.dto.*;
 import br.app.camarada.backend.enums.Cabecalhos;
 import br.app.camarada.backend.exception.EmailJaCadastradoException;
+import br.app.camarada.backend.exception.ExcessaoDeEnderecoInvalido;
 import br.app.camarada.backend.filtros.CustomServletWrapper;
 import br.app.camarada.backend.servicos.ServicoDeAdministracao;
 import br.app.camarada.backend.servicos.ServicoDePagamentos;
@@ -37,11 +38,16 @@ public class ControladorDeUsuarios {
         if (request.getHeader(Cabecalhos.ESTABELECIMENTO.getValue()) != null) {
             idEstabelecimento = Long.parseLong(request.getHeader(Cabecalhos.ESTABELECIMENTO.getValue()));
         }
-        servicoParaUsuarios.editarEndereco(dto,DadosDeCabecalhos.builder()
-                .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))
-                .idEndereco(Long.parseLong(request.getHeader(Cabecalhos.ENDERECO.getValue())))
-                .build());
-        return ResponseEntity.ok().build();
+        try {
+            servicoParaUsuarios.editarEndereco(dto,DadosDeCabecalhos.builder()
+                    .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))
+                    .idEndereco(Long.parseLong(request.getHeader(Cabecalhos.ENDERECO.getValue())))
+                    .build());
+
+            return ResponseEntity.ok().build();
+        }catch (ExcessaoDeEnderecoInvalido e){
+            return ResponseEntity.status(405).build();
+        }
     }
     @GetMapping("/endereco/tela")
     public ResponseEntity<ResTelaEntrega> obterTelaDeEdicaoDeEndereco( CustomServletWrapper request) {
@@ -64,6 +70,12 @@ public class ControladorDeUsuarios {
 
         return ResponseEntity.ok().build();
 
+    }
+    @PostMapping("/reenviarcodigoemail")
+    public ResponseEntity reenviarcodigoemail(CustomServletWrapper request) {
+        servicoParaUsuarios.reenviarcodigoemail(request.getHeader(Cabecalhos.EMAIL.getValue()));
+
+        return ResponseEntity.ok().build();
     }
     @PostMapping("/registrar")
     public ResponseEntity<AuthenticationResponseDto> registrarUsuario(@RequestBody RequisicaoRegistro dto) {

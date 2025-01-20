@@ -9,6 +9,7 @@ import br.app.camarada.backend.entidades.*;
 import br.app.camarada.backend.enums.PlanoEstabelecimento;
 import br.app.camarada.backend.enums.TipoConta;
 import br.app.camarada.backend.exception.EmailJaCadastradoException;
+import br.app.camarada.backend.exception.ExcessaoDeEnderecoInvalido;
 import br.app.camarada.backend.repositorios.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.security.SecureRandom;
@@ -85,12 +85,15 @@ public class ServicoParaUsuarios implements UserDetailsService {
         );
     }
 
-    public void editarEndereco(ReqEdicaoEndereco dto, DadosDeCabecalhos dadosDeCabecalhos) {
+    public boolean editarEndereco(ReqEdicaoEndereco dto, DadosDeCabecalhos dadosDeCabecalhos) throws ExcessaoDeEnderecoInvalido {
         Endereco endereco = repositorioDeEnderecos.findById(dadosDeCabecalhos.getIdEndereco()).get();
 
         String enderecoCompletoParaGM = dto.getEndereco() + ", " + dto.getCidade() + ", " + dto.getEstado();
 
         RespostaLocalidadeGoogleMaps respostaLocalidadeGoogleMaps = servicoDoGoogleMaps.obterLocalidade(enderecoCompletoParaGM);
+        if (respostaLocalidadeGoogleMaps == null) {
+            return false;
+        }
         endereco.setGooglePlaceId(respostaLocalidadeGoogleMaps.getPlaceId());
         endereco.setNumero(dto.getNumero());
         endereco.setComplemento(dto.getComplemento());
@@ -105,8 +108,9 @@ public class ServicoParaUsuarios implements UserDetailsService {
         endereco.setFavorito(true);
 
         Endereco save = repositorioDeEnderecos.save(endereco);
+        return true;
     }
-//    @Transactional
+
     public AuthenticationResponseDto registrarUsuario(RequisicaoRegistro dto) {
         Usuario byEmail = repositorioDeUsuario.findByEmail(dto.getEmail());
         if (byEmail != null) {
@@ -188,6 +192,8 @@ public class ServicoParaUsuarios implements UserDetailsService {
         );
 
         endereco.setUsuario(user);
+        user.setEnderecoId(endereco.getId());
+
         repositorioDeEnderecos.save(endereco);
         Perfil perfil = servicoParaPerfil.criarPerfil(user);
 
@@ -281,8 +287,8 @@ public class ServicoParaUsuarios implements UserDetailsService {
                     String codigo = gerarCodigoDeConfirmacao();
                     usuario.setCodigoEsqueciaSenha(codigo);
                     repositorioDeUsuario.save(usuario);
-                    mensagem.setTo(email);
-                    mensagem.setFrom("naoresponda@ubuntu.app.br");
+                    mensagem.setTo("fernando.csconceicao@outlook.com");
+                    mensagem.setFrom("admin@kamanda.app.br");
                     mensagem.setText("Email para redefinição de senha de conta Ubuntu. " + codigo);
                     mensagem.setSubject("Redefinição de senha");
 
@@ -323,6 +329,11 @@ public class ServicoParaUsuarios implements UserDetailsService {
         return false;
     }
 
+    public void definirPrimeiraCompra(Long idusuario, Boolean valor) {
+        Usuario usuario = repositorioDeUsuario.findById(idusuario).get();
+        usuario.setPrimeiraCompra(valor);
+        repositorioDeUsuario.save(usuario);
+    }
 
     public Boolean redefinirSenha(String email, String senha) {
         Usuario usuario = repositorioDeUsuario.findByEmail(email);
@@ -343,7 +354,7 @@ public class ServicoParaUsuarios implements UserDetailsService {
         Usuario usuario = repositorioDeUsuario.findByEmail(email);
         SimpleMailMessage mensagem = new SimpleMailMessage();
 
-        mensagem.setFrom("naoresponda@ubuntu.app.br");
+        mensagem.setFrom("naoresponda@kamanda.app.br");
         mensagem.setTo(email);
         mensagem.setText("Seu código de confirmação de email da conta Ubuntu é " + usuario.getCodigoConfirmacao());
         mensagem.setSubject("Confirmação de email");
@@ -368,11 +379,15 @@ public class ServicoParaUsuarios implements UserDetailsService {
 
     public EnderecoDto obterEndereco(DadosDeCabecalhos dadosDeCabecalhos) {
         Usuario usuario = repositorioDeUsuario.findById(dadosDeCabecalhos.getIdUsuario()).get();
-        Endereco endereco = repositorioDeEnderecos.findById(usuario.getEnderecoId()).get();
-        if (endereco == null) {
+        Optional<Endereco> enderecoOpt = repositorioDeEnderecos.findById(usuario.getEnderecoId());
+        Endereco endereco;
+        if (enderecoOpt.isEmpty()) {
+
             endereco = repositorioDeEnderecos.save(Endereco.build(usuario));
             usuario.setEnderecoId(endereco.getId());
             repositorioDeUsuario.save(usuario);
+        } else {
+            endereco = enderecoOpt.get();
         }
 
 

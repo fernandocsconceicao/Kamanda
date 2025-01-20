@@ -60,28 +60,7 @@ public class ServicoDaLoja {
         }
 
     }
-//    public void atualizarPropriedadesDoEstabelecimento(Produto produto) {
-//
-//        List<Produto> establishmentProdutos = productRepository.findByEstablishmentId(produto.getEstabelecimento().getId());
-//        boolean veganStamp = false;
-//        boolean vegetarianStamp = false;
-//
-//        Optional<Produto> optionalProduct = establishmentProdutos.stream().filter(Produto::getVeganStamp).findFirst();
-//        Optional<Produto> vegetarianProducts = establishmentProdutos.stream().filter(Produto::getVegetarianStamp).findFirst();
-//
-//        if (optionalProduct.isPresent()) {
-//            veganStamp = true;
-//        }
-//
-//        if (vegetarianProducts.isPresent()) {
-//            vegetarianStamp = true;
-//        }
-//        //TODO: Economizar chamadas ao banco
-//        Estabelecimento estabelecimento = establishmentRepository.findById(produto.getEstabelecimento().getId()).get();
-//        estabelecimento.setVeganStamp(veganStamp);
-//        estabelecimento.setVegetarianStamp(vegetarianStamp);
-//        establishmentRepository.save(estabelecimento);
-//    }
+
 
 
     public TelaCarrinho obterCarrinho(DadosDeCabecalhos dadosDeCabecalhos) throws JsonProcessingException {
@@ -115,7 +94,7 @@ public class ServicoDaLoja {
         });
 
 
-        return new TelaCarrinho(carrinhoComImagens, StringUtils.formatPrice(valorTotal[0]));
+        return new TelaCarrinho(carrinhoComImagens, StringUtils.formatPrice(valorTotal[0]),usuario.getPrimeiraCompra());
     }
 
     public TelaVitrine obterVitrine(DadosDeCabecalhos dadosDeCabecalhos) {
@@ -148,7 +127,8 @@ public class ServicoDaLoja {
             ));
             vitrineEstabelecimento.add( new VitrineEstabelecimentoDto(e.getId(), e.getName(),e.getLogo(),produtosDeEstabelecimentosDto ));
         });
-        return new TelaVitrine(produtoDtos,vitrineEstabelecimento);
+
+        return new TelaVitrine(produtoDtos,vitrineEstabelecimento,dadosDeCabecalhos.getPrimeiraCompra());
     }
 
     public void adicionarAoCarrinho(AdicionamentoDeProdutoAoCarrinho dto, DadosDeCabecalhos dadosDeCabecalhos) {
@@ -430,6 +410,13 @@ public class ServicoDaLoja {
                 precoFrete,
                 distancia.getDistanciaEmKm()
         );
+
+    }
+
+    public void postarFormularioPrimeiraCompra(ReqPrimeiraCompra dto, DadosDeCabecalhos dadosDeCabecalhos) {
+        Usuario usuario =  repositorioDeUsuario.findById(dadosDeCabecalhos.getIdUsuario()).get();
+        usuario.setPrimeiraCompra(false);
+        repositorioDeUsuario.save(usuario);
 
     }
 }

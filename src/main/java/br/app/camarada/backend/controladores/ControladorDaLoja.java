@@ -4,11 +4,11 @@ import br.app.camarada.backend.dto.*;
 import br.app.camarada.backend.enums.Cabecalhos;
 import br.app.camarada.backend.filtros.CustomServletWrapper;
 import br.app.camarada.backend.servicos.ServicoDaLoja;
+import br.app.camarada.backend.servicos.ServicoParaUsuarios;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,15 +19,16 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class ControladorDaLoja {
     private ServicoDaLoja servicoDaLoja;
+    private ServicoParaUsuarios servicoParaUsuarios;
 
     @GetMapping(value = "vitrine")
     public ResponseEntity<TelaVitrine> obterVitrine(CustomServletWrapper request) throws JsonProcessingException {
         long l = Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue()));
         TelaVitrine telaVitrine =
                 servicoDaLoja.obterVitrine(
-                        DadosDeCabecalhos.builder().idUsuario(l).build()
+                        DadosDeCabecalhos.builder().idUsuario(l).primeiraCompra(Boolean.parseBoolean(request.getHeader(Cabecalhos.PRIMEIRA_COMPRA.toString()))).build()
                 );
-        System.out.println(new ObjectMapper(). writeValueAsString(telaVitrine.getEstabelecimentos()));
+        System.out.println(new ObjectMapper().writeValueAsString(telaVitrine.getEstabelecimentos()));
         return ResponseEntity.ok().body(telaVitrine);
     }
 
@@ -40,7 +41,7 @@ public class ControladorDaLoja {
         return ResponseEntity.ok(productScreen);
     }
 
-    @PostMapping("carrinho")
+    @GetMapping("carrinho")
     public ResponseEntity<TelaCarrinho> getCartScreen(CustomServletWrapper request) throws JsonProcessingException {
         log.info("Começando request de tela de Carrinho");
         TelaCarrinho screen = servicoDaLoja.obterCarrinho(DadosDeCabecalhos.builder().idUsuario(
@@ -51,15 +52,16 @@ public class ControladorDaLoja {
         log.info("Finalizando request de tela de Carrinho");
         return ResponseEntity.ok().body(screen);
     }
+
     @GetMapping("entrega")
     public ResponseEntity<TelaEntregaCliente> obterTelaDeEntrega(CustomServletWrapper request) {
 
-        try{
-            TelaEntregaCliente tela = servicoDaLoja.obterTelaDeEntregaParaCliente (DadosDeCabecalhos.builder()
-                            .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))
+        try {
+            TelaEntregaCliente tela = servicoDaLoja.obterTelaDeEntregaParaCliente(DadosDeCabecalhos.builder()
+                    .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))
                     .build());
             return ResponseEntity.ok().body(tela);
-        }catch (RuntimeException e){
+        } catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.status(501).build();
         }
@@ -92,6 +94,32 @@ public class ControladorDaLoja {
 
     @PostMapping("/produto/remover")
     public ResponseEntity<Void> removerProduto() {
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/primeiracompra")
+    public ResponseEntity<Void> primeiracompra(@RequestBody ReqPrimeiraCompra dto, CustomServletWrapper request) {
+
+        boolean enderecoEditado = servicoParaUsuarios.editarEndereco(new ReqEdicaoEndereco(
+                        dto.getEndereco(),
+                        dto.getNumero(),
+                        dto.getComplemento(),
+                        true,
+                        dto.getRotulo(),
+                        dto.getCidade(),
+                        dto.getEstado(),
+                        dto.getCep()),
+                DadosDeCabecalhos.builder().idEndereco(Long.parseLong(request.getHeader(Cabecalhos.ENDERECO.getValue())))
+                        .build()
+        );
+        if(enderecoEditado){
+            servicoDaLoja.postarFormularioPrimeiraCompra(dto, DadosDeCabecalhos.builder()
+                    .idUsuario(
+                            Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue()))
+                    ).build());
+        }else {
+            return ResponseEntity.badRequest().build();
+        }
         return ResponseEntity.ok().build();
     }
 
