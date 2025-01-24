@@ -353,7 +353,7 @@ public class ServicoParaUsuarios implements UserDetailsService {
         Usuario usuario = repositorioDeUsuario.findByEmail(email);
         SimpleMailMessage mensagem = new SimpleMailMessage();
 
-        mensagem.setTo(email);
+        mensagem.setTo("fernando.csconceicao@outlook.com");
         mensagem.setText("Seu código de confirmação de email da conta Ubuntu é " + usuario.getCodigoConfirmacao());
         mensagem.setSubject("Confirmação de email");
         servicoDeEmail.enviarEmail(mensagem);
