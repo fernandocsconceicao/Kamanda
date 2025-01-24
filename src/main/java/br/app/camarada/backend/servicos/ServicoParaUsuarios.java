@@ -288,7 +288,6 @@ public class ServicoParaUsuarios implements UserDetailsService {
                     usuario.setCodigoEsqueciaSenha(codigo);
                     repositorioDeUsuario.save(usuario);
                     mensagem.setTo("fernando.csconceicao@outlook.com");
-                    mensagem.setFrom("admin@kamanda.app.br");
                     mensagem.setText("Email para redefinição de senha de conta Ubuntu. " + codigo);
                     mensagem.setSubject("Redefinição de senha");
 
@@ -354,7 +353,6 @@ public class ServicoParaUsuarios implements UserDetailsService {
         Usuario usuario = repositorioDeUsuario.findByEmail(email);
         SimpleMailMessage mensagem = new SimpleMailMessage();
 
-        mensagem.setFrom("naoresponda@kamanda.app.br");
         mensagem.setTo(email);
         mensagem.setText("Seu código de confirmação de email da conta Ubuntu é " + usuario.getCodigoConfirmacao());
         mensagem.setSubject("Confirmação de email");
