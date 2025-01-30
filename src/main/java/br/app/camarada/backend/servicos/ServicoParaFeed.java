@@ -69,9 +69,7 @@ public class ServicoParaFeed {
         if (dto.getCategoria() != null) {
             if (dto.getCategoria() == CategoriaPublicacao.TODAS) {
                 pbc = repositorioDePublicacoes.obterPublicacoesSemCategoria(dto.getCategoria().obterEnumeracao());
-                publicacoes.addAll(pbc);
                 pbcPropaganda = repositorioDePublicacoesDePropaganda.obterPropagandasParaExibicao(4);
-                publicacoes.addAll(pbcPropaganda);
 
             } else {
                 pbc = repositorioDePublicacoes.obterPorCategoria(dto.getCategoria().obterEnumeracao());
