@@ -3,16 +3,19 @@ package br.app.camarada.backend.dto;
 
 import br.app.camarada.backend.client.NotionClient;
 import br.app.camarada.backend.client.WorldTimeClient;
-import br.app.camarada.backend.dto.notion.RequisicaoAppendNotionBlock;
 import br.app.camarada.backend.dto.publicacao.req.RequisicaoDePostagem;
 import br.app.camarada.backend.entidades.Perfil;
 import br.app.camarada.backend.entidades.Publicacao;
+import br.app.camarada.backend.entidades.PublicacaoDePropaganda;
 import br.app.camarada.backend.entidades.Usuario;
+import br.app.camarada.backend.enums.CategoriaPublicacao;
+import br.app.camarada.backend.enums.StatusPropaganda;
 import br.app.camarada.backend.enums.TipoPerfil;
 import br.app.camarada.backend.exception.ErroPadrao;
 import br.app.camarada.backend.exception.NomeDeUsuarioExistente;
 import br.app.camarada.backend.repositorios.RepositorioDePerfil;
 import br.app.camarada.backend.repositorios.RepositorioDePublicacoes;
+import br.app.camarada.backend.repositorios.RepositorioDePublicacoesDePropaganda;
 import br.app.camarada.backend.repositorios.RepositorioDeUsuario;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -30,19 +33,45 @@ import java.util.Optional;
 @AllArgsConstructor
 public class ServicoParaPerfil {
     private RepositorioDePublicacoes repositorioDePublicacoes;
+    private RepositorioDePublicacoesDePropaganda repositorioDePublicacoesDePropaganda;
     private RepositorioDePerfil repositorioDePerfil;
     private RepositorioDeUsuario repositorioDeUsuario;
     private WorldTimeClient worldTimeClient;
     private NotionClient notionClient;
 
-    public void publicar(RequisicaoDePostagem dto, DadosDeCabecalhos dadosUsuario) throws JsonProcessingException {
+    public boolean publicar(RequisicaoDePostagem dto, DadosDeCabecalhos dadosUsuario)  {
         Publicacao publicacao = null;
         Optional<Perfil> perfilPessoal = repositorioDePerfil.findById(dadosUsuario.getIdPerfilPrincipal());
-
-
-
+        Usuario usuario = repositorioDeUsuario.findById(dadosUsuario.getIdUsuario()).get();
+        if(!usuario.getPodePublicar()){
+            return false;
+        }
         if (perfilPessoal.isPresent()) {
             List<Perfil> perfisMencionados = new ArrayList<>();
+            if(usuario.getContaDePropaganda()){
+                String categoriaPublicacao = dto.getCategoria().obterValor();
+
+                repositorioDePublicacoesDePropaganda.save(PublicacaoDePropaganda.builder()
+                        .id(null)
+                        .texto(dto.getTexto())
+                        .data(LocalDateTime.now())
+                        .tipoPublicacao(dto.getTipoPublicacao())
+                        .autorPrincipal(perfilPessoal.get())
+                        .categoriaPublicacao((CategoriaPublicacao.valueOf(categoriaPublicacao)))
+                        .data(LocalDateTime.now())
+                        .resumo(dto.getResumo())
+                        .imagem(dto.getImagem())
+                        .visualizacoes(0)
+                        .naBibliotecaDePessoas(0)
+                        .curtidas(0)
+                        .manchete(dto.getManchete())
+                        .idPerfil(dadosUsuario.getIdPerfilPrincipal())
+                        .categoriasDaPropaganda("{}")
+                        .propaganda(true)
+                        .statusPropaganda(StatusPropaganda.ATIVA)
+                        .build());
+                return true;
+            }
             if (dto.getIdsDePerfisMencionados() != null)
                 dto.getIdsDePerfisMencionados().forEach(id -> {
                     Optional<Perfil> optional = repositorioDePerfil.findById(id);
@@ -50,13 +79,8 @@ public class ServicoParaPerfil {
                         perfisMencionados.add(optional.get());
                     }
                 });
-            LocalDateTime data;
-            try {
-                data = worldTimeClient.buscarHora().getDatetime().toLocalDateTime();
-            } catch (Exception e) {
-                System.out.println("Falha no world time");
-                data = LocalDateTime.now().minusHours(3);
-            }
+            LocalDateTime data = LocalDateTime.now().minusHours(3);
+
             publicacao = Publicacao.montar(
                     dto.getTexto(),
                     dto.getTipoPublicacao(),
@@ -66,19 +90,20 @@ public class ServicoParaPerfil {
                     dto.getImagem(),
                     dto.getManchete(),
                     perfilPessoal.get().getId(),
-                    dto.getCategoriaPublicacao()
+                    dto.getCategoria()
             );
             repositorioDePublicacoes.save(publicacao);
             ArrayList<String> tags = new ArrayList<>();
             tags.add(dadosUsuario.getEmail());
-            notionClient.tabularPublicacao("2022-06-28",
-                    "Bearer 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",
-                    RequisicaoAppendNotionBlock.construirPublicacaoEmDatabase(
-                            "128dd3360f128021af59c0941050cd4b",
-                            dto.getTexto().substring(0,
-                                    dto.getTexto().length()),
-                            tags,
-                            dto.getTexto() + "- " + dadosUsuario.getEmail()));
+//            notionClient.tabularPublicacao("2022-06-28",
+//                    "Bearer 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",
+//                    RequisicaoAppendNotionBlock.construirPublicacaoEmDatabase(
+//                            "128dd3360f128021af59c0941050cd4b",
+//                            dto.getTexto().substring(0,
+//                                    dto.getTexto().length()),
+//                            tags,
+//                            dto.getTexto() + "- " + dadosUsuario.getEmail()));
+            return true;
 
         } else {
             throw new MalformedParametersException();
@@ -181,5 +206,17 @@ public class ServicoParaPerfil {
             return true;
         }
         return false;
+    }
+
+    public boolean editarImagem(ReqEdicaoImagem dto,DadosDeCabecalhos dadosDeCabecalhos) {
+        Optional<Perfil> perfil = repositorioDePerfil.findById(dadosDeCabecalhos.getIdPerfilPrincipal());
+        if(perfil.isPresent()){
+            Perfil perfilObj = perfil.get();
+            perfilObj.setImagem(dto.getImagem());
+            repositorioDePerfil.save(perfilObj);
+            return true;
+        }else {
+            return false;
+        }
     }
 }

@@ -28,16 +28,23 @@ public class PerfilDto {
     private String idade;
     private String chavePix;
     private String emailComercial;
+    private byte [] imagem;
+    private byte [] imagemFundo;
 
 
     public static PerfilDto montar(Perfil perfil) {
         ArrayList<BioPerfilDto> bio = new ArrayList<>();
-
+        String idade;
+        if(perfil.getIdade() == null){
+            idade = null;
+        }else{
+            idade = perfil.getIdade().toString();
+        }
         if (perfil.getIdade() != null)
             bio.add(
                     new BioPerfilDto(TipoBlocoPerfil.ATRIBUTO_VALOR,
                             UtilitarioBundle.obterMensagem(TextosBundle.ROTULO_PERFIL_IDADE),
-                            perfil.getIdade().toString(),
+                            idade,
                             null,
                             null
 
@@ -80,7 +87,7 @@ public class PerfilDto {
                     ));
         }
         return new PerfilDto(perfil.getId(), perfil.getNome(), perfil.getVerificado(), perfil.getTipoPerfil(), bio,
-                perfil.getNomeUsuario(), perfil.getResumo(), perfil.getTelefone(),perfil.getIdade().toString(),
-                perfil.getChavePix(), perfil.getEmailComercial());
+                perfil.getNomeUsuario(), perfil.getResumo(), perfil.getTelefone(), idade,
+                perfil.getChavePix(), perfil.getEmailComercial(), perfil.getImagem(), perfil.getImagemFundo());
     }
 }

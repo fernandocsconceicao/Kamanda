@@ -23,4 +23,5 @@ public class RespostaFeed {
     private Boolean primeiroAcesso;
     @Nullable
     private TipoServico tipoServico;
+    private Boolean podePublicar;
 }

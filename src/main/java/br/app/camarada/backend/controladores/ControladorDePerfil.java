@@ -24,6 +24,22 @@ public class ControladorDePerfil {
     private ServicoParaFeed servicoParaFeed;
     private ServicoDePagamentos servicoDePagamentos;
 
+    @PostMapping("/publicar")
+    public ResponseEntity<Void> publicar(@RequestBody RequisicaoDePostagem req, CustomServletWrapper request)  {
+        log.info("Publicação - usuario - " + request.getHeader(Cabecalhos.USUARIO.getValue()));
+        boolean publicar = servicoParaPerfil.publicar(
+                req,
+                DadosDeCabecalhos.builder()
+                        .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))
+                        .idPerfilPrincipal(Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue()).toString()))
+                        .email(request.getHeader(Cabecalhos.EMAIL.getValue()))
+                        .build()
+        );
+        if (publicar){
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.status(405).build();
+    }
     @PostMapping("criarperfil")
     public ResponseEntity<Void> criarPerfil(@RequestBody RequisicaoCriacaoPerfil dto, CustomServletWrapper request) {
         try {
@@ -50,7 +66,6 @@ public class ControladorDePerfil {
         PerfilDto perfilDto = servicoParaPerfil.obterPerfil(Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue())));
         ObjectMapper objectMapper = new ObjectMapper();
         String json = objectMapper.writeValueAsString(perfilDto);
-        System.out.println(json);
         return ResponseEntity.ok().body(perfilDto);
     }
     @GetMapping("/obtertelaedicao")
@@ -64,9 +79,10 @@ public class ControladorDePerfil {
         return ResponseEntity.ok().body(perfilDto);
     }
     @GetMapping("/obterpublicacoes")
-    public ResponseEntity<RespostaPublicacoes> obterPublicaoes(CustomServletWrapper request) throws JsonProcessingException {
+    public ResponseEntity<RespostaPublicacoes> obterPublicaoes(CustomServletWrapper request)  {
         DadosDeCabecalhos dadosDeCabecalhos =  DadosDeCabecalhos.builder()
                 .idPerfilPrincipal(Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue()).toString()))
+                .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue()).toString()))
                 .build();
         RespostaPublicacoes respostaFeed = servicoParaFeed.buscarPublicacoesDePerfil(dadosDeCabecalhos);
 
@@ -83,17 +99,18 @@ public class ControladorDePerfil {
             return ResponseEntity.badRequest().build();
         }
     }
-    @PostMapping("/publicar")
-    public ResponseEntity<Void> publicar(@RequestBody RequisicaoDePostagem req, CustomServletWrapper request) throws JsonProcessingException {
-        log.info("Publicação - usuario - " + request.getHeader(Cabecalhos.USUARIO.getValue()));
-        servicoParaPerfil.publicar(
-                req,
+    @PostMapping("trocarimagem")
+    public ResponseEntity<Void> editarImagemPerfil(@RequestBody ReqEdicaoImagem dto, CustomServletWrapper request){
+        boolean editou = servicoParaPerfil.editarImagem(dto,
                 DadosDeCabecalhos.builder()
-                        .idPerfilPrincipal(Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue()).toString()))
-                        .email(request.getHeader(Cabecalhos.EMAIL.getValue()))
-                        .build()
-        );
-        return ResponseEntity.ok().build();
+                        .idPerfilPrincipal(
+                                Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue())))
+                        .build());
+        if(editou){
+            return ResponseEntity.ok().build();
+        }else {
+            return ResponseEntity.status(500).build();
+        }
     }
     @PostMapping("/adicionarabiblioteca")
     public ResponseEntity<Void> adicionarABiblioteca(@RequestBody RequisicaoAdicionarABiblioteca req, CustomServletWrapper request) throws JsonProcessingException {

@@ -1,10 +1,7 @@
 package br.app.camarada.backend.controladores;
 
 
-import br.app.camarada.backend.dto.DadosDeCabecalhos;
-import br.app.camarada.backend.dto.PublicacaoDto;
-import br.app.camarada.backend.dto.RequisicaoFeed;
-import br.app.camarada.backend.dto.RespostaFeed;
+import br.app.camarada.backend.dto.*;
 import br.app.camarada.backend.dto.publicacao.req.RequisicaoParaObterPublicacao;
 import br.app.camarada.backend.dto.publicacao.res.RespostaPublicacoes;
 import br.app.camarada.backend.entidades.Publicacao;
@@ -26,6 +23,17 @@ import java.util.List;
 public class ControladorFeed {
     private ServicoParaFeed servicoParaFeed;
     private ServicoDePagamentos servicoDePagamentos;
+
+    @PostMapping("/propaganda/publicar")
+    public ResponseEntity<RespostaPublicacoes> buscarFeed(@RequestBody ReqPublicacaoDePropaganda dto, CustomServletWrapper request){
+        DadosDeCabecalhos dadosDeCabecalhos =  DadosDeCabecalhos.builder()
+                .idPerfilPrincipal(Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue()).toString()))
+                .email(request.getHeader(Cabecalhos.EMAIL.getValue()))
+                .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))
+                .build();
+        servicoParaFeed.publicarPropaganda(dto,dadosDeCabecalhos);
+        return ResponseEntity.ok().build();
+    }
 
     @PostMapping("obter")
     public ResponseEntity<RespostaPublicacoes> buscarFeed(@RequestBody RequisicaoFeed dto, CustomServletWrapper request) {
@@ -50,10 +58,11 @@ public class ControladorFeed {
                 respostaFeed.getErroTitulo(),
                 respostaFeed.getErroDescricao(),
                 respostaFeed.getTipoErro(),
-                respostaFeed.getTipoServico()
+                respostaFeed.getTipoServico(),
+                respostaFeed.getPodePublicar()
         );
         System.out.println(resposta.getPublicacoes().size());
-        System.out.println(resposta.getPublicacoes().get(0).getTipoPublicacao().name());
+
         return ResponseEntity.ok().body(resposta);
     }
     @PostMapping("obterpublicacao")
