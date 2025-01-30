@@ -16,10 +16,13 @@ public interface RepositorioDePublicacoes extends JpaRepository<Publicacao,Long>
 
     List<Publicacao> findByIdPerfil(Long id);
 
-    @Query(nativeQuery = true, value = " Select * from publicacao where status_propaganda=:value ")
+
+    @Query(nativeQuery = true, value = "SELECT * FROM publicacao WHERE status_propaganda=:value ORDER BY id DESC")
     List<Publicacao> obterPorStatus(@Param(value = "value") Integer statusPropaganda);
-    @Query(nativeQuery = true, value = " Select * from publicacao where categoria_publicacao = :valor ")
+
+    @Query(nativeQuery = true, value = "SELECT * FROM publicacao WHERE categoria_publicacao = :valor ORDER BY id DESC")
     List<Publicacao> obterPorCategoria(@Param("valor") Integer categoria);
-    @Query(nativeQuery = true, value = " Select * from publicacao LIMIT :limite")
-    List<Publicacao> obterPublicacoesSemCategoria(@Param("limite") Integer limite );
+
+    @Query(nativeQuery = true, value = "SELECT * FROM publicacao ORDER BY id DESC LIMIT :limite")
+    List<Publicacao> obterPublicacoesSemCategoria(@Param("limite") Integer limite);
 }

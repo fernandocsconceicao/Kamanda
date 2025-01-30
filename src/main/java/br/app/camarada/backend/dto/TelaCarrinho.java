@@ -17,4 +17,5 @@ public class TelaCarrinho {
     private List<ItemCarrinhoComImagem> produtos;
     private String preçoTotal;
     private Boolean primeiraCompra;
+    private Boolean emailCadastrado;
 }

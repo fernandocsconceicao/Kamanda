@@ -403,4 +403,10 @@ public class ServicoParaUsuarios implements UserDetailsService {
                 endereco.getEstado()
         );
     }
+
+    public TelaConfirmacaoEmail obterTelaConfirmacaoEmail(DadosDeCabecalhos dadosDeCabecalhos) {
+        Usuario usuario = repositorioDeUsuario.findById(dadosDeCabecalhos.getIdUsuario()).get();
+
+        return new TelaConfirmacaoEmail(usuario.getEmail());
+    }
 }

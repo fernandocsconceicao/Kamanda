@@ -94,7 +94,7 @@ public class ServicoDaLoja {
         });
 
 
-        return new TelaCarrinho(carrinhoComImagens, StringUtils.formatPrice(valorTotal[0]),usuario.getPrimeiraCompra());
+        return new TelaCarrinho(carrinhoComImagens, StringUtils.formatPrice(valorTotal[0]),usuario.getPrimeiraCompra(),usuario.getPrimeiraCompra());
     }
 
     public TelaVitrine obterVitrine(DadosDeCabecalhos dadosDeCabecalhos) {
@@ -418,5 +418,25 @@ public class ServicoDaLoja {
         usuario.setPrimeiraCompra(false);
         repositorioDeUsuario.save(usuario);
 
+    }
+
+
+
+    public TelaDePedidosParaClientes obterPedidos(DadosDeCabecalhos dadosDeCabecalhos) {
+        List<Pedido> pedidosDoUsuario = repositorioDePedidos.findByUsuario(dadosDeCabecalhos.getIdUsuario());
+        List<PedidoDto> pedido = new ArrayList<>();
+
+        pedidosDoUsuario.forEach( p -> {
+            pedido.add(new PedidoDto(
+                    p.getId(),
+                    p.getImagem(),
+                    p.getNome(),
+                    StringUtils.formatPrice(p.getValorTotal()),
+                    p.getStatus().getTexto(),
+                    p.getStatus()
+            ));
+        });
+
+        return TelaDePedidosParaClientes.builder().pedidos(pedido).build();
     }
 }

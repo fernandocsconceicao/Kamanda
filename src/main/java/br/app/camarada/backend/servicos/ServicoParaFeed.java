@@ -82,29 +82,36 @@ public class ServicoParaFeed {
             pbc = repositorioDePublicacoes.obterPublicacoesSemCategoria(publicacoesPorSaidaDePublicacoes);
             pbcPropaganda = repositorioDePublicacoesDePropaganda.obterPropagandasParaExibicao(propagandaPorSaidaDePublicacoes);
         }
-        Integer indexpbc = 0;
-        Integer indexpbcPropaganda = 0;
-        Boolean acabaramAsPublicacoes = false;
+        int indexpbc = 0;
+        int indexpbcPropaganda = 0;
+        boolean pegarPublicacao = true;
 
         for (int i = 0; i < componentesDePublicacoesPorSaida; i++) {
-            if ((i & 2) == 0 && i != 1 && pbc.size() > indexpbc) {
+            if (pegarPublicacao && indexpbc < pbc.size()) {
                 publicacoes.add(pbc.get(indexpbc));
-                indexpbc += 1;
-            } else if ( pbcPropaganda.size() > indexpbcPropaganda) {
+                indexpbc++;
+            } else if (!pegarPublicacao && indexpbcPropaganda < pbcPropaganda.size()) {
                 publicacoes.add(pbcPropaganda.get(indexpbcPropaganda));
-                indexpbcPropaganda += 1;
+                indexpbcPropaganda++;
             }
+
+            pegarPublicacao = !pegarPublicacao;
         }
+
         List<PublicacaoDto> publicacoesDto = new ArrayList<>();
 
         publicacoes.forEach(p -> {
             ConteudoDaPublicacao conteudo = p.getConteudo();
-            Perfil autorPrincipal =
-                    conteudo.getAutorPrincipal();
+            Perfil autorPrincipal = conteudo.getAutorPrincipal();
+
+            String resumo = conteudo.getResumo();
+            if( resumo.length()> 100){
+                resumo= resumo.substring(0,99) + "...";
+            }
             publicacoesDto.add(new PublicacaoDto(conteudo.getId(),
                     conteudo.getTipoPublicacao(),
                     new PerfilPublicacaoDto(autorPrincipal.getId(), autorPrincipal.getNome(), autorPrincipal.getVerificado(), autorPrincipal.getNomeUsuario(), autorPrincipal.getImagem())
-                    , conteudo.getResumo()
+                    , resumo
                     , conteudo.getData().toString()
                     , conteudo.getTexto()
                     , conteudo.getImagem()
@@ -115,6 +122,7 @@ public class ServicoParaFeed {
                     conteudo.getPropaganda()));
         });
         Usuario usuario = repositorioDeUsuario.findById(dadosDeCabecalhos.getIdUsuario()).get();
+
 
         return new RespostaFeed(publicacoesDto, pagamentosPendentes, codigoPix, tituloDoErro, descricaoDoErro, tipoErro,
                 dadosDeCabecalhos.getPrimeiroAcesso(), tipoServico, usuario.getPodePublicar());

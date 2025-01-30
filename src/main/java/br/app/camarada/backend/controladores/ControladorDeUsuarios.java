@@ -6,7 +6,6 @@ import br.app.camarada.backend.exception.EmailJaCadastradoException;
 import br.app.camarada.backend.exception.ExcessaoDeEnderecoInvalido;
 import br.app.camarada.backend.filtros.CustomServletWrapper;
 import br.app.camarada.backend.servicos.ServicoDeAdministracao;
-import br.app.camarada.backend.servicos.ServicoDePagamentos;
 import br.app.camarada.backend.servicos.ServicoParaUsuarios;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,14 +14,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/usuario")
 @AllArgsConstructor
 public class ControladorDeUsuarios {
     private ServicoParaUsuarios servicoParaUsuarios;
     private ServicoDeAdministracao servicoDeAdministracao;
+
     @PostMapping("/autenticar")
     public ResponseEntity<AuthenticationResponseDto> authenticate(@RequestBody RequisicaoDeAutenticacao dto
             , CustomServletWrapper request) throws JsonProcessingException {
@@ -31,6 +29,7 @@ public class ControladorDeUsuarios {
         System.out.println(new ObjectMapper().writeValueAsString(authenticate));
         return ResponseEntity.ok().body(authenticate);
     }
+
     @PostMapping("/endereco/editar")
     public ResponseEntity<Void> editarEndereco(@RequestBody ReqEdicaoEndereco dto, CustomServletWrapper request) {
 
@@ -39,18 +38,19 @@ public class ControladorDeUsuarios {
             idEstabelecimento = Long.parseLong(request.getHeader(Cabecalhos.ESTABELECIMENTO.getValue()));
         }
         try {
-            servicoParaUsuarios.editarEndereco(dto,DadosDeCabecalhos.builder()
+            servicoParaUsuarios.editarEndereco(dto, DadosDeCabecalhos.builder()
                     .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))
                     .idEndereco(Long.parseLong(request.getHeader(Cabecalhos.ENDERECO.getValue())))
                     .build());
 
             return ResponseEntity.ok().build();
-        }catch (ExcessaoDeEnderecoInvalido e){
+        } catch (ExcessaoDeEnderecoInvalido e) {
             return ResponseEntity.status(405).build();
         }
     }
+
     @GetMapping("/endereco/tela")
-    public ResponseEntity<ResTelaEntrega> obterTelaDeEdicaoDeEndereco( CustomServletWrapper request) {
+    public ResponseEntity<ResTelaEntrega> obterTelaDeEdicaoDeEndereco(CustomServletWrapper request) {
 
         EnderecoDto enderecoDto = servicoParaUsuarios.obterEndereco(DadosDeCabecalhos.builder()
                 .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))
@@ -62,21 +62,23 @@ public class ControladorDeUsuarios {
 
     @PostMapping("/denunciar")
     public ResponseEntity<AuthenticationResponseDto> denunciar(@RequestBody RequisicaoDenuncia dto, CustomServletWrapper request) throws JsonProcessingException {
-          servicoDeAdministracao.denuncia(dto,
-                    DadosDeCabecalhos.builder()
-                            .idPerfilPrincipal(Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue()).toString()))
-                            .email(request.getHeader(Cabecalhos.EMAIL.getValue()))
-                            .build());
+        servicoDeAdministracao.denuncia(dto,
+                DadosDeCabecalhos.builder()
+                        .idPerfilPrincipal(Long.parseLong(request.getHeader(Cabecalhos.PERFIL.getValue()).toString()))
+                        .email(request.getHeader(Cabecalhos.EMAIL.getValue()))
+                        .build());
 
         return ResponseEntity.ok().build();
 
     }
+
     @PostMapping("/reenviarcodigoemail")
     public ResponseEntity reenviarcodigoemail(CustomServletWrapper request) {
         servicoParaUsuarios.reenviarcodigoemail(request.getHeader(Cabecalhos.EMAIL.getValue()));
 
         return ResponseEntity.ok().build();
     }
+
     @PostMapping("/registrar")
     public ResponseEntity<AuthenticationResponseDto> registrarUsuario(@RequestBody RequisicaoRegistro dto) {
         try {
@@ -91,6 +93,17 @@ public class ControladorDeUsuarios {
 
 
     }
+
+    @PostMapping("/telaconfirmacaoemail")
+    public ResponseEntity<TelaConfirmacaoEmail> telaconfirmacaoemail(@RequestBody ReqConfirmacaoEmail dto, CustomServletWrapper request) {
+        TelaConfirmacaoEmail telaConfirmacaoEmail = servicoParaUsuarios.obterTelaConfirmacaoEmail(
+                DadosDeCabecalhos.
+                builder()
+                        .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))
+                        .build());
+        return ResponseEntity.ok().body(telaConfirmacaoEmail);
+    }
+
     @PostMapping("/confirmaremail")
     public ResponseEntity confirmaremail(@RequestBody ReqConfirmacaoEmail dto, CustomServletWrapper request) {
         if (servicoParaUsuarios.confirmarEmail(dto.getCodigo(), Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))) {
@@ -99,6 +112,7 @@ public class ControladorDeUsuarios {
             return ResponseEntity.status(403).build();
         }
     }
+
     @PostMapping("/autenticar/existeemail")
     public ResponseEntity<RespostaExisteEmailCadastrado> existeEmail(@RequestBody RequisicaoExisteEmailCadastrado dto) {
         Boolean resposta = servicoParaUsuarios.existeUsuarioCadastrado(dto.getEmail());

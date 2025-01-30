@@ -31,6 +31,14 @@ public class ControladorDaLoja {
         System.out.println(new ObjectMapper().writeValueAsString(telaVitrine.getEstabelecimentos()));
         return ResponseEntity.ok().body(telaVitrine);
     }
+    @GetMapping(value = "/pedidos")
+    public ResponseEntity<TelaDePedidosParaClientes> obterEntregas(CustomServletWrapper request) {
+        long l = Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue()));
+        TelaDePedidosParaClientes telaPedidos = servicoDaLoja.obterPedidos(
+                DadosDeCabecalhos.builder().idUsuario(l).primeiraCompra(Boolean.parseBoolean(request.getHeader(Cabecalhos.PRIMEIRA_COMPRA.toString()))).build()
+        );
+        return ResponseEntity.ok().body(telaPedidos);
+    }
 
 
     @PostMapping("/produto/obter")
