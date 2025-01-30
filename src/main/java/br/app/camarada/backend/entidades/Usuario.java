@@ -58,6 +58,8 @@ public class Usuario implements UserDetails {
     private String cpf;
     private String telefone;
     private Boolean primeiraVisualizaçãoDoPerfil;
+    private Boolean podePublicar;
+    private Boolean contaDePropaganda;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return getPermissoes();

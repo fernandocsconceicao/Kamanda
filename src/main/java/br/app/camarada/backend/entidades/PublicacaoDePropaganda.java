@@ -2,8 +2,10 @@ package br.app.camarada.backend.entidades;
 
 import br.app.camarada.backend.dto.ConteudoDaPublicacao;
 import br.app.camarada.backend.enums.CategoriaPublicacao;
+import br.app.camarada.backend.enums.StatusPropaganda;
 import br.app.camarada.backend.enums.TipoPublicacao;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,7 +16,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class Publicacao implements IPublicacao {
+@Builder
+public class PublicacaoDePropaganda implements IPublicacao {
     @Id
     @GeneratedValue
     private Long id;
@@ -30,28 +33,16 @@ public class Publicacao implements IPublicacao {
     @Lob
     private byte[] imagem;
     private Integer visualizacoes;
-    private Integer NaBibliotecaDePessoas;
+    private Integer naBibliotecaDePessoas;
     private Integer curtidas;
     private String manchete;
     private Long idPerfil;
+    private String categoriasDaPropaganda;
+    private Boolean propaganda;
+    @Enumerated
+    private StatusPropaganda statusPropaganda;
     @Enumerated
     private CategoriaPublicacao categoriaPublicacao;
-    private Boolean emPropaganda;
-
-    public static Publicacao montar(String texto,
-                                    TipoPublicacao tipo,
-                                    Perfil autorPrincipal,
-                                    LocalDateTime data,
-                                    String resumo,
-                                    byte[] imagem,
-                                    String manchete,
-                                    Long idPerfil,
-                                    CategoriaPublicacao categoriaPublicacao) {
-        return new Publicacao(null, texto, tipo, autorPrincipal, data,
-                resumo, imagem, 0, 0,
-                0, manchete, idPerfil,categoriaPublicacao , false);
-    }
-
 
     @Override
     public ConteudoDaPublicacao getConteudo() {
@@ -64,12 +55,12 @@ public class Publicacao implements IPublicacao {
                 this.resumo,
                 this.imagem,
                 this.visualizacoes,
-                this.NaBibliotecaDePessoas,
+                this.naBibliotecaDePessoas,
                 this.curtidas,
                 this.manchete,
                 this.idPerfil,
-                this.categoriaPublicacao,
-                this.emPropaganda);
+                this.getCategoriaPublicacao(),
+                true
+        );
     }
-
 }

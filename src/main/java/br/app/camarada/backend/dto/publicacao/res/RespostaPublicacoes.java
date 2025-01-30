@@ -21,6 +21,8 @@ public class RespostaPublicacoes {
     private String erroDescricao;
     private TipoErro tipoErro;
     private TipoServico tipoServico;
+    private Boolean podePublicar;
+
 
     public static RespostaPublicacoes montarPublicacaoReduzida(List<PublicacaoDto> publicacoes,
                                                                Boolean pagamentoPendente,
@@ -28,10 +30,11 @@ public class RespostaPublicacoes {
                                                                String erroTitulo,
                                                                String erroDescricao,
                                                                TipoErro tipoErro,
-                                                               TipoServico tipoServico
+                                                               TipoServico tipoServico,
+                                                               Boolean podePublicar
     ) {
 
 
-        return new RespostaPublicacoes(publicacoes, pagamentoPendente, codigo, erroTitulo, erroDescricao, tipoErro, tipoServico);
+        return new RespostaPublicacoes(publicacoes, pagamentoPendente, codigo, erroTitulo, erroDescricao, tipoErro, tipoServico,podePublicar);
     }
 }

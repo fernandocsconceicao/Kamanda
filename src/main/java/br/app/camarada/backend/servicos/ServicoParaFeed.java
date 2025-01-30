@@ -4,15 +4,13 @@ import br.app.camarada.backend.dto.*;
 import br.app.camarada.backend.dto.mercadopago.MercadoPagoPixResponse;
 import br.app.camarada.backend.dto.publicacao.req.RequisicaoParaObterPublicacao;
 import br.app.camarada.backend.dto.publicacao.res.RespostaPublicacoes;
-import br.app.camarada.backend.entidades.Pagamento;
-import br.app.camarada.backend.entidades.Perfil;
-import br.app.camarada.backend.entidades.Publicacao;
-import br.app.camarada.backend.enums.FormaDePagamento;
-import br.app.camarada.backend.enums.TextosBundle;
-import br.app.camarada.backend.enums.TipoErro;
-import br.app.camarada.backend.enums.TipoServico;
+import br.app.camarada.backend.entidades.*;
+import br.app.camarada.backend.enums.*;
 import br.app.camarada.backend.exception.ExcessaoDePagamentoCancelado;
+import br.app.camarada.backend.repositorios.RepositorioDePerfil;
 import br.app.camarada.backend.repositorios.RepositorioDePublicacoes;
+import br.app.camarada.backend.repositorios.RepositorioDePublicacoesDePropaganda;
+import br.app.camarada.backend.repositorios.RepositorioDeUsuario;
 import br.app.camarada.backend.utilitarios.UtilitarioBundle;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,16 +23,25 @@ import java.util.List;
 @AllArgsConstructor
 public class ServicoParaFeed {
     private RepositorioDePublicacoes repositorioDePublicacoes;
+    private RepositorioDePerfil repositorioDePerfil;
     private ServicoDePagamentos servicoDePagamentos;
+    private RepositorioDePublicacoesDePropaganda repositorioDePublicacoesDePropaganda;
+    private RepositorioDeUsuario repositorioDeUsuario;
+
 
     public RespostaFeed buscarPublicacoes(DadosDeCabecalhos dadosDeCabecalhos, RequisicaoFeed dto) {
         List<Pagamento> pagamentos = servicoDePagamentos.verificarPagamentosPendentes(dadosDeCabecalhos.getIdUsuario());
+        Integer publicacoesPorSaidaDePublicacoes = 5;
+        Integer propagandaPorSaidaDePublicacoes = 3;
+        Integer componentesDePublicacoesPorSaida = publicacoesPorSaidaDePublicacoes + propagandaPorSaidaDePublicacoes;
         boolean pagamentosPendentes = false;
         String codigoPix = null;
         String tituloDoErro = null;
         String descricaoDoErro = null;
         TipoErro tipoErro = null;
         TipoServico tipoServico = null;
+        Boolean podePublicar;
+
         if (pagamentos != null) {
             pagamentosPendentes = true;
             Pagamento pagamento = pagamentos.get(0);
@@ -56,31 +63,63 @@ public class ServicoParaFeed {
             }
         }
 
-        List<Publicacao> publicacoes;
-
+        List<IPublicacao> publicacoes = new ArrayList<>();
+        List<Publicacao> pbc;
+        List<PublicacaoDePropaganda> pbcPropaganda = new ArrayList<>();
         if (dto.getCategoria() != null) {
-            publicacoes = repositorioDePublicacoes.obterPorCategoria(dto.getCategoria().obterEnumeracao());
-        }else{
-            publicacoes = repositorioDePublicacoes.findAll();
+            if (dto.getCategoria() == CategoriaPublicacao.TODAS) {
+                pbc = repositorioDePublicacoes.obterPublicacoesSemCategoria(dto.getCategoria().obterEnumeracao());
+                publicacoes.addAll(pbc);
+                pbcPropaganda = repositorioDePublicacoesDePropaganda.obterPropagandasParaExibicao(4);
+                publicacoes.addAll(pbcPropaganda);
+
+            } else {
+                pbc = repositorioDePublicacoes.obterPorCategoria(dto.getCategoria().obterEnumeracao());
+                if (pbc.isEmpty()) {
+                    pbc = repositorioDePublicacoes.obterPublicacoesSemCategoria(publicacoesPorSaidaDePublicacoes);
+                }
+                pbcPropaganda = repositorioDePublicacoesDePropaganda.obterPropagandasParaExibicao(propagandaPorSaidaDePublicacoes);
+            }
+        } else {
+            pbc = repositorioDePublicacoes.obterPublicacoesSemCategoria(publicacoesPorSaidaDePublicacoes);
+            pbcPropaganda = repositorioDePublicacoesDePropaganda.obterPropagandasParaExibicao(propagandaPorSaidaDePublicacoes);
         }
+        Integer indexpbc = 0;
+        Integer indexpbcPropaganda = 0;
+        Boolean acabaramAsPublicacoes = false;
 
+        for (int i = 0; i < componentesDePublicacoesPorSaida; i++) {
+            if ((i & 2) == 0 && i != 1 && pbc.size() > indexpbc) {
+                publicacoes.add(pbc.get(indexpbc));
+                indexpbc += 1;
+            } else if ( pbcPropaganda.size() > indexpbcPropaganda) {
+                publicacoes.add(pbcPropaganda.get(indexpbcPropaganda));
+                indexpbcPropaganda += 1;
+            }
+        }
         List<PublicacaoDto> publicacoesDto = new ArrayList<>();
-        publicacoes.forEach(p -> {
-            Perfil autorPrincipal = p.getAutorPrincipal();
-            publicacoesDto.add(new PublicacaoDto(p.getId(), p.getTipoPublicacao(),
-                    new PerfilPublicacaoDto(autorPrincipal.getId(), autorPrincipal.getNome(), autorPrincipal.getVerificado(), autorPrincipal.getNomeUsuario(), autorPrincipal.getImagem())
-                    , p.getResumo()
-                    , p.getData().toString()
-                    , p.getTexto()
-                    , p.getImagem()
-                    , p.getManchete()
-                    , autorPrincipal.getImagem()
-                    , p.getVisualizacoes()
-                    ,
-                    p.getCategoria()));
-        });
 
-        return new RespostaFeed(publicacoesDto, pagamentosPendentes, codigoPix, tituloDoErro, descricaoDoErro, tipoErro, dadosDeCabecalhos.getPrimeiroAcesso(), tipoServico);
+        publicacoes.forEach(p -> {
+            ConteudoDaPublicacao conteudo = p.getConteudo();
+            Perfil autorPrincipal =
+                    conteudo.getAutorPrincipal();
+            publicacoesDto.add(new PublicacaoDto(conteudo.getId(),
+                    conteudo.getTipoPublicacao(),
+                    new PerfilPublicacaoDto(autorPrincipal.getId(), autorPrincipal.getNome(), autorPrincipal.getVerificado(), autorPrincipal.getNomeUsuario(), autorPrincipal.getImagem())
+                    , conteudo.getResumo()
+                    , conteudo.getData().toString()
+                    , conteudo.getTexto()
+                    , conteudo.getImagem()
+                    , conteudo.getManchete()
+                    , autorPrincipal.getImagem()
+                    , conteudo.getVisualizacoes(),
+                    conteudo.getCategoriaPublicacao(),
+                    conteudo.getPropaganda()));
+        });
+        Usuario usuario = repositorioDeUsuario.findById(dadosDeCabecalhos.getIdUsuario()).get();
+
+        return new RespostaFeed(publicacoesDto, pagamentosPendentes, codigoPix, tituloDoErro, descricaoDoErro, tipoErro,
+                dadosDeCabecalhos.getPrimeiroAcesso(), tipoServico, usuario.getPodePublicar());
     }
 
     public PublicacaoDto obterPublicacao(RequisicaoParaObterPublicacao dto) {
@@ -103,19 +142,62 @@ public class ServicoParaFeed {
                 publicacao.getManchete(),
                 publicacao.getAutorPrincipal().getImagem(),
                 publicacao.getVisualizacoes(),
-                publicacao.getCategoria()
+                publicacao.getCategoriaPublicacao(),
+                publicacao.getEmPropaganda()
         );
 
     }
 
     public RespostaPublicacoes buscarPublicacoesDePerfil(DadosDeCabecalhos dadosDeCabecalhos) {
         List<Publicacao> byIdPerfil = repositorioDePublicacoes.findByIdPerfil(dadosDeCabecalhos.getIdPerfilPrincipal());
+        Usuario usuario = repositorioDeUsuario.findById(dadosDeCabecalhos.getIdUsuario()).get();
         List<PublicacaoDto> dto = new ArrayList<>();
         byIdPerfil.forEach(p -> dto.add(new PublicacaoDto(p.getId(), p.getTipoPublicacao(), null,
                 p.getResumo(), p.getData().toString(), p.getTexto(), p.getImagem(), p.getManchete(),
                 p.getAutorPrincipal().getImagem(), p.getVisualizacoes(),
-                p.getCategoria())));
-        return new RespostaPublicacoes(dto, null, null, null, null, null, null);
+                p.getCategoriaPublicacao(),
+                p.getEmPropaganda())));
+        return new RespostaPublicacoes(dto, null, null, null, null, null, null, usuario.getPodePublicar());
 
+    }
+
+
+    public void publicarPropaganda(ReqPublicacaoDePropaganda dto, DadosDeCabecalhos dadosDeCabecalhos) {
+        /**
+         private String texto;
+         private TipoPublicacao tipoPublicacao;
+         private String resumo;
+         private byte[] imagem;
+         private Integer visualizacoes;
+         private Integer NaBibliotecaDePessoas;
+         private Integer curtidas;
+         private String manchete;
+         private Long idPerfil;
+         private CategoriaPublicacao categoriaPublicacao;
+         private String categoriasDaPropaganda;
+         private Boolean emPropaganda;
+
+         private StatusPropaganda statusPropaganda;
+         */
+        Perfil perfil = repositorioDePerfil.findById(dadosDeCabecalhos.getIdPerfilPrincipal()).get();
+        repositorioDePublicacoesDePropaganda.save(PublicacaoDePropaganda.builder()
+                .id(null)
+                .texto(dto.getTexto())
+                .data(LocalDateTime.now())
+                .tipoPublicacao(dto.getTipoPublicacao())
+                .autorPrincipal(perfil)
+                .data(LocalDateTime.now())
+                .resumo(dto.getResumo())
+                .imagem(dto.getImagem())
+                .visualizacoes(0)
+                .naBibliotecaDePessoas(0)
+                .curtidas(0)
+                .manchete(dto.getManchete())
+                .idPerfil(perfil.getId())
+                .categoriasDaPropaganda("{}")
+                .propaganda(true)
+                .statusPropaganda(StatusPropaganda.ATIVA)
+
+                .build());
     }
 }

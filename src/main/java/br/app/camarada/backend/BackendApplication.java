@@ -1,11 +1,13 @@
 package br.app.camarada.backend;
 
 import br.app.camarada.backend.dto.RequisicaoRegistro;
+import br.app.camarada.backend.entidades.Aplicacao;
 import br.app.camarada.backend.entidades.Caixa;
 import br.app.camarada.backend.entidades.Permissao;
 import br.app.camarada.backend.entidades.Regiao;
 import br.app.camarada.backend.enums.TipoConta;
 import br.app.camarada.backend.repositorios.CaixaRepositorio;
+import br.app.camarada.backend.repositorios.RepositorioAplicacao;
 import br.app.camarada.backend.repositorios.RepositorioDePermissao;
 import br.app.camarada.backend.repositorios.RepositorioDeRegiao;
 import br.app.camarada.backend.servicos.ServicoParaUsuarios;
@@ -23,6 +25,7 @@ import java.util.List;
 public class BackendApplication  implements CommandLineRunner {
     private ServicoParaUsuarios servicoParaUsuarios;
     private CaixaRepositorio caixaRepositorio;
+    private RepositorioAplicacao repositorioAplicacao;
     private RepositorioDePermissao repositorioDePermissao;
     private RepositorioDeRegiao regiaoRepository;
 
@@ -54,6 +57,9 @@ public class BackendApplication  implements CommandLineRunner {
             repositorioDePermissao.save(new Permissao(null, "ADMIN"));
         }
 
+        if (repositorioAplicacao.findById(1L).isEmpty()) {
+            repositorioAplicacao.save(new Aplicacao( null,"{}"));
+        }
         if (caixaRepositorio.findById(1L).isEmpty()) {
             caixaRepositorio.save(new Caixa());
         }

@@ -16,6 +16,6 @@ public class RequisicaoDePostagem {
     private String resumo;
     private byte[] imagem;
     private String manchete;
-    private CategoriaPublicacao categoriaPublicacao;
+    private CategoriaPublicacao categoria;
 
 }

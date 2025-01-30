@@ -5,7 +5,8 @@ public enum CategoriaPublicacao {
     BELEZA(1, "Beleza"),
     ECONOMIA(2, "Economia"),
     MODA(3, "Moda"),
-    EDUCACAO(4, "Educação");
+    EDUCACAO(4, "Educação"),
+    TODAS(10000,"TODAS");
     private Integer enumeracao;
     private String valor;
 
