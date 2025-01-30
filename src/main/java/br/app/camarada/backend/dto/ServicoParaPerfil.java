@@ -197,6 +197,7 @@ public class ServicoParaPerfil {
             Perfil perfil = optional.get();
             perfil.setTelefone(req.getTelefone());
             perfil.setNomeUsuario(req.getNomeDeUsuario());
+            perfil.setNome(req.getNome());
             perfil.setIdade(req.getIdade());
             perfil.setEmailComercial(req.getEmailComercial());
             perfil.setChavePix(req.getChavePix());

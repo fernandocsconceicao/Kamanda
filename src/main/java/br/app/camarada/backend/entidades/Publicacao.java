@@ -18,14 +18,14 @@ public class Publicacao implements IPublicacao {
     @Id
     @GeneratedValue
     private Long id;
-    @Column(columnDefinition = "VARCHAR(15000) CHARACTER SET latin1 COLLATE latin1_swedish_ci")
+    @Lob
     private String texto;
     @Enumerated
     private TipoPublicacao tipoPublicacao;
     @ManyToOne
     private Perfil autorPrincipal;
     private LocalDateTime data;
-    @Column(columnDefinition = "VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci")
+    @Lob
     private String resumo;
     @Lob
     private byte[] imagem;

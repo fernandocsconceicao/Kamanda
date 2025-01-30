@@ -24,6 +24,7 @@ public class RespostaPublicacoes {
     private Boolean podePublicar;
 
 
+
     public static RespostaPublicacoes montarPublicacaoReduzida(List<PublicacaoDto> publicacoes,
                                                                Boolean pagamentoPendente,
                                                                String codigo,
