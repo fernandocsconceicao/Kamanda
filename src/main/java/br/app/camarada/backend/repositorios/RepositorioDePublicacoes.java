@@ -18,7 +18,7 @@ public interface RepositorioDePublicacoes extends JpaRepository<Publicacao,Long>
 
     @Query(nativeQuery = true, value = " Select * from publicacao where status_propaganda=:value ")
     List<Publicacao> obterPorStatus(@Param(value = "value") Integer statusPropaganda);
-    @Query(nativeQuery = true, value = " Select * from publicacao where categoria = :valor ")
+    @Query(nativeQuery = true, value = " Select * from publicacao where categoria_publicacao = :valor ")
     List<Publicacao> obterPorCategoria(@Param("valor") Integer categoria);
     @Query(nativeQuery = true, value = " Select * from publicacao LIMIT :limite")
     List<Publicacao> obterPublicacoesSemCategoria(@Param("limite") Integer limite );
