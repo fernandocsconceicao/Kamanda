@@ -82,19 +82,22 @@ public class ServicoParaFeed {
             pbc = repositorioDePublicacoes.obterPublicacoesSemCategoria(publicacoesPorSaidaDePublicacoes);
             pbcPropaganda = repositorioDePublicacoesDePropaganda.obterPropagandasParaExibicao(propagandaPorSaidaDePublicacoes);
         }
-        Integer indexpbc = 0;
-        Integer indexpbcPropaganda = 0;
-        Boolean acabaramAsPublicacoes = false;
+        int indexpbc = 0;
+        int indexpbcPropaganda = 0;
+        boolean pegarPublicacao = true;
 
         for (int i = 0; i < componentesDePublicacoesPorSaida; i++) {
-            if ((i & 2) == 0 && i != 1 && pbc.size() > indexpbc) {
+            if (pegarPublicacao && indexpbc < pbc.size()) {
                 publicacoes.add(pbc.get(indexpbc));
-                indexpbc += 1;
-            } else if ( pbcPropaganda.size() > indexpbcPropaganda) {
+                indexpbc++;
+            } else if (!pegarPublicacao && indexpbcPropaganda < pbcPropaganda.size()) {
                 publicacoes.add(pbcPropaganda.get(indexpbcPropaganda));
-                indexpbcPropaganda += 1;
+                indexpbcPropaganda++;
             }
+
+            pegarPublicacao = !pegarPublicacao;
         }
+
         List<PublicacaoDto> publicacoesDto = new ArrayList<>();
 
         publicacoes.forEach(p -> {

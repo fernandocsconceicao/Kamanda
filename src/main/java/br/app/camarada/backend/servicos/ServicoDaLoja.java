@@ -419,4 +419,24 @@ public class ServicoDaLoja {
         repositorioDeUsuario.save(usuario);
 
     }
+
+
+
+    public TelaDePedidosParaClientes obterPedidos(DadosDeCabecalhos dadosDeCabecalhos) {
+        List<Pedido> pedidosDoUsuario = repositorioDePedidos.findByUsuario(dadosDeCabecalhos.getIdUsuario());
+        List<PedidoDto> pedido = new ArrayList<>();
+
+        pedidosDoUsuario.forEach( p -> {
+            pedido.add(new PedidoDto(
+                    p.getId(),
+                    p.getImagem(),
+                    p.getNome(),
+                    StringUtils.formatPrice(p.getValorTotal()),
+                    p.getStatus().getTexto(),
+                    p.getStatus()
+            ));
+        });
+
+        return TelaDePedidosParaClientes.builder().pedidos(pedido).build();
+    }
 }
