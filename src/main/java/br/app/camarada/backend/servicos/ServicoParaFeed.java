@@ -32,7 +32,7 @@ public class ServicoParaFeed {
     public RespostaFeed buscarPublicacoes(DadosDeCabecalhos dadosDeCabecalhos, RequisicaoFeed dto) {
         List<Pagamento> pagamentos = servicoDePagamentos.verificarPagamentosPendentes(dadosDeCabecalhos.getIdUsuario());
         Integer publicacoesPorSaidaDePublicacoes = 5;
-        Integer propagandaPorSaidaDePublicacoes = 3;
+        Integer propagandaPorSaidaDePublicacoes = 1;
         Integer componentesDePublicacoesPorSaida = publicacoesPorSaidaDePublicacoes + propagandaPorSaidaDePublicacoes;
         boolean pagamentosPendentes = false;
         String codigoPix = null;
