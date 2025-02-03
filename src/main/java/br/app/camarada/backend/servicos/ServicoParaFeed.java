@@ -105,7 +105,7 @@ public class ServicoParaFeed {
             Perfil autorPrincipal = conteudo.getAutorPrincipal();
 
             String resumo = conteudo.getResumo();
-            if( resumo.length()> 100){
+            if(resumo != null && resumo.length()> 100){
                 resumo= resumo.substring(0,99) + "...";
             }
             publicacoesDto.add(new PublicacaoDto(conteudo.getId(),
