@@ -137,4 +137,27 @@ public class ControladorDeUsuarios {
         }
         return ResponseEntity.ok().build();
     }
+    @PostMapping("/esqueciasenha/gerarcodigo")
+    public ResponseEntity enviarCodigoEsqueciASenha(@RequestBody ReqEsqueciMinhaSenha dto, CustomServletWrapper request) {
+        servicoParaUsuarios.gerarCodigo(dto.getEmail());
+
+        return null;
+    }
+
+    @PostMapping("/esqueciasenha/confirmarcodigo")
+    public ResponseEntity confirmarCodigo(@RequestBody ReqConfirmacaoEmailEsqueciASenha dto) {
+        Boolean resposta = servicoParaUsuarios.confirmarCodigoMudancaDeSenha(dto.getCodigo(), dto.getEmail());
+        if (resposta) {
+            return ResponseEntity.status(200).build();
+        } else {
+            return ResponseEntity.status(404).build();
+        }
+    }
+
+    @PostMapping("/esqueciasenha/enviarnovasenha")
+    public ResponseEntity mudarSenha(@RequestBody ReqTrocaDeSenha dto) {
+        servicoParaUsuarios.redefinirSenha(dto.getEmail(), dto.getSenha());
+        return ResponseEntity.ok().build();
+    }
+
 }
