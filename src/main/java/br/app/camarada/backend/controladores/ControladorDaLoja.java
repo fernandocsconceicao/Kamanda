@@ -2,6 +2,7 @@ package br.app.camarada.backend.controladores;
 
 import br.app.camarada.backend.dto.*;
 import br.app.camarada.backend.enums.Cabecalhos;
+import br.app.camarada.backend.enums.CategoriaProduto;
 import br.app.camarada.backend.filtros.CustomServletWrapper;
 import br.app.camarada.backend.servicos.ServicoDaLoja;
 import br.app.camarada.backend.servicos.ServicoParaUsuarios;
@@ -11,6 +12,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/loja")
@@ -38,6 +43,25 @@ public class ControladorDaLoja {
                 DadosDeCabecalhos.builder().idUsuario(l).primeiraCompra(Boolean.parseBoolean(request.getHeader(Cabecalhos.PRIMEIRA_COMPRA.toString()))).build()
         );
         return ResponseEntity.ok().body(telaPedidos);
+    }
+    @PostMapping("/produto/editar")
+    public ResponseEntity<Void> editarProduto(@RequestBody ReqEdicaoProduto dto, CustomServletWrapper request) {
+        log.info("Iniciando requisição  de listagem de Produtos de estabelecimento");
+        servicoDaLoja.editarProduto(dto, Long.parseLong(request.getHeader(Cabecalhos.ESTABELECIMENTO.getValue())));
+        log.info("Finalizando requisição  de listagem de Produtos de estabelecimento");
+        return ResponseEntity.ok().build();
+    }
+    @PostMapping("editarproduto")
+    public ResponseEntity<TelaDeEdicaoDeProdutos> obterTelaDeEdicaoDeProdutos(@RequestBody ReqTelaDeEdicaoProduto dto) {
+        List<CategoriaDto> categorias = Arrays.stream(CategoriaProduto.values())
+                .map(categoria -> new CategoriaDto(categoria.getNome(), categoria.name()))
+                .collect(Collectors.toList());
+        log.info("Iniciando requisição  de edicao de Produto de estabelecimento");
+        TelaDeEdicaoDeProdutos tela = TelaDeEdicaoDeProdutos.build(servicoDaLoja.obterProduto(
+                        Long.parseLong(dto.getIdDoProduto())),
+                categorias);
+        log.info("Finalizando requisição  de edicao de Produto de estabelecimento");
+        return ResponseEntity.ok().body(tela);
     }
 
 

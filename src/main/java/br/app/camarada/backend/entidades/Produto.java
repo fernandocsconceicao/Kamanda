@@ -2,7 +2,6 @@ package br.app.camarada.backend.entidades;
 
 import br.app.camarada.backend.dto.ReqCriacaoDeProduto;
 import br.app.camarada.backend.enums.CategoriaProduto;
-import com.sun.istack.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -41,6 +40,7 @@ public class Produto {
     private Integer estoque;
     private Integer prazoDeEntrega;
     private Integer popularidade;
+    private Boolean disponivel;
 
     public static Produto build(ReqCriacaoDeProduto dto, Estabelecimento estabelecimento) {
         return new Produto(
@@ -62,10 +62,8 @@ public class Produto {
                 dto.getMaterial(),
                 dto.getEstoque(),
                 dto.getPrazoDeEntrega(),
-            0
-
-
-
+                0,
+                dto.getDisponivel()
         );
 
     }

@@ -439,4 +439,26 @@ public class ServicoDaLoja {
 
         return TelaDePedidosParaClientes.builder().pedidos(pedido).build();
     }
+
+    public void editarProduto(ReqEdicaoProduto dto, long l) {
+        if(repositorioDeEstabelecimentos.findById(l).isPresent()){
+            Produto produto = repositorioDeProdutos.findById(Long.parseLong(dto.getIdDoProduto())).get();
+            produto.setPrecoVitrine(dto.getPreco().multiply(BigDecimal.valueOf(1.2)));
+            produto.setCategoriaProduto(dto.getCategoria());
+
+            if(dto.getTrocouImagem()){
+                produto.setImagem(dto.getImagem());
+            }
+            produto.setNome(dto.getNome());
+            produto.setDisponivel(dto.getDisponivel());
+
+            repositorioDeProdutos.save(produto);
+        }
+    }
+
+    public Produto obterProduto(Long l) {
+        Optional<Produto> byId = repositorioDeProdutos.findById(l);
+        Produto produto = byId.get();
+        return produto;
+    }
 }

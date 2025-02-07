@@ -22,7 +22,8 @@ public enum CategoriaProduto {
     JARDINAGEM("Produtos para jardinagem", "Jardinagem"),
     ARTIGOS_FESTA("Artigos para festas e eventos", "Artigos para Festa"),
     MUSICA("Instrumentos e acessórios musicais", "Música"),
-    GAMES("Consoles e jogos", "Games");
+    GAMES("Consoles e jogos", "Games"),
+    OUTRO("Outros Produtos", "Outros");
 
     private final String chamadaHome;
     private final String nome;
