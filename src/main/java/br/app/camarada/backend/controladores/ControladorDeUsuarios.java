@@ -54,6 +54,7 @@ public class ControladorDeUsuarios {
 
         EnderecoDto enderecoDto = servicoParaUsuarios.obterEndereco(DadosDeCabecalhos.builder()
                 .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))
+                        .idEndereco(Long.parseLong(request.getHeader(Cabecalhos.ENDERECO.getValue())))
                 .build()
         );
         ResTelaEntrega resTelaEntrega = new ResTelaEntrega(enderecoDto);

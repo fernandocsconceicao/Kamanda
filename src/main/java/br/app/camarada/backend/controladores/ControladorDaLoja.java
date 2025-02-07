@@ -131,6 +131,17 @@ public class ControladorDaLoja {
 
     @PostMapping("/primeiracompra")
     public ResponseEntity<Void> primeiracompra(@RequestBody ReqPrimeiraCompra dto, CustomServletWrapper request) {
+        String endereco = request.getHeader(Cabecalhos.ENDERECO.getValue());
+        Long idEndereco=null;
+
+        if(endereco == null){
+            idEndereco= servicoParaUsuarios.obterEndereco(DadosDeCabecalhos.builder()
+                    .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))
+                    .build())
+                    .getId();
+        }else{
+            idEndereco = Long.parseLong(request.getHeader(Cabecalhos.ENDERECO.getValue()));
+        }
 
         boolean enderecoEditado = servicoParaUsuarios.editarEndereco(new ReqEdicaoEndereco(
                         dto.getEndereco(),
@@ -141,7 +152,7 @@ public class ControladorDaLoja {
                         dto.getCidade(),
                         dto.getEstado(),
                         dto.getCep()),
-                DadosDeCabecalhos.builder().idEndereco(Long.parseLong(request.getHeader(Cabecalhos.ENDERECO.getValue())))
+                DadosDeCabecalhos.builder().idEndereco(idEndereco)
                         .build()
         );
         if(enderecoEditado){

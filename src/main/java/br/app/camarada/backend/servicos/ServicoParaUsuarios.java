@@ -86,7 +86,14 @@ public class ServicoParaUsuarios implements UserDetailsService {
     }
 
     public boolean editarEndereco(ReqEdicaoEndereco dto, DadosDeCabecalhos dadosDeCabecalhos) throws ExcessaoDeEnderecoInvalido {
-        Endereco endereco = repositorioDeEnderecos.findById(dadosDeCabecalhos.getIdEndereco()).get();
+        Optional<Endereco> enderecoOpt = repositorioDeEnderecos.findById(dadosDeCabecalhos.getIdEndereco());
+        Endereco endereco = null;
+        if(enderecoOpt.isPresent()){
+            endereco = enderecoOpt.get();
+
+        }else {
+            return false;
+        }
 
         String enderecoCompletoParaGM = dto.getEndereco() + ", " + dto.getCidade() + ", " + dto.getEstado();
 
@@ -379,17 +386,15 @@ public class ServicoParaUsuarios implements UserDetailsService {
 
     public EnderecoDto obterEndereco(DadosDeCabecalhos dadosDeCabecalhos) {
         Usuario usuario = repositorioDeUsuario.findById(dadosDeCabecalhos.getIdUsuario()).get();
-        Optional<Endereco> enderecoOpt = repositorioDeEnderecos.findById(usuario.getEnderecoId());
-        Endereco endereco;
-        if (enderecoOpt.isEmpty()) {
 
+        Endereco endereco;
+        if(usuario.getEnderecoId() == null){
             endereco = repositorioDeEnderecos.save(Endereco.build(usuario));
             usuario.setEnderecoId(endereco.getId());
             repositorioDeUsuario.save(usuario);
-        } else {
-            endereco = enderecoOpt.get();
+        }else{
+            endereco = repositorioDeEnderecos.findById(dadosDeCabecalhos.getIdEndereco()).get();
         }
-
 
         return new EnderecoDto(
                 endereco.getId(),
