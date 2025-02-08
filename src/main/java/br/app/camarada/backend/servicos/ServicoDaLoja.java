@@ -4,6 +4,7 @@ import br.app.camarada.backend.client.GoogleMapsClient;
 import br.app.camarada.backend.dto.Properties;
 import br.app.camarada.backend.dto.*;
 import br.app.camarada.backend.entidades.*;
+import br.app.camarada.backend.enums.CategoriaProduto;
 import br.app.camarada.backend.enums.StatusPedido;
 import br.app.camarada.backend.exception.ErroPadrao;
 import br.app.camarada.backend.repositorios.*;
@@ -62,7 +63,6 @@ public class ServicoDaLoja {
     }
 
 
-
     public TelaCarrinho obterCarrinho(DadosDeCabecalhos dadosDeCabecalhos) throws JsonProcessingException {
         Usuario usuario = repositorioDeUsuario.findById(dadosDeCabecalhos.getIdUsuario()).get();
 
@@ -94,12 +94,13 @@ public class ServicoDaLoja {
         });
 
 
-        return new TelaCarrinho(carrinhoComImagens, StringUtils.formatPrice(valorTotal[0]),usuario.getPrimeiraCompra(),usuario.getPrimeiraCompra());
+        return new TelaCarrinho(carrinhoComImagens, StringUtils.formatPrice(valorTotal[0]), usuario.getPrimeiraCompra(), usuario.getPrimeiraCompra());
     }
 
     public TelaVitrine obterVitrine(DadosDeCabecalhos dadosDeCabecalhos) {
 
-        List<Produto> produtos = repositorioDeProdutos.buscarPorExibicaoEAvaliacao(10);
+//        List<Produto> produtos = repositorioDeProdutos.buscarPorExibicaoEAvaliacao(10);
+        List<Produto> produtos = repositorioDeProdutos.buscarPorCategoria(CategoriaProduto.MODA.getEnumeracao(), 10);
         List<ProdutoDto> produtoDtos = new ArrayList<>();
         produtos.forEach(p -> {
             if (p.getPrecoVitrine() == null) {
@@ -121,14 +122,18 @@ public class ServicoDaLoja {
             List<Produto> produtosDoEstabelecimento = repositorioDeProdutos.findByEstablishmentId(e.getId());
             ArrayList<ProdutoDto> produtosDeEstabelecimentosDto = new ArrayList<>();
 
-            produtosDoEstabelecimento.forEach(p -> produtosDeEstabelecimentosDto.add (new ProdutoDto(
-                    p.getId(),p.getNome(),p.getImagem(),StringUtils.formatPrice(p.getPrecoVitrine())
-                    )
-            ));
-            vitrineEstabelecimento.add( new VitrineEstabelecimentoDto(e.getId(), e.getName(),e.getLogo(),produtosDeEstabelecimentosDto ));
+            produtosDoEstabelecimento.forEach(p -> {
+                if (p.getCategoriaProduto() != CategoriaProduto.MODA)
+                    produtosDeEstabelecimentosDto.add(new ProdutoDto(
+                                    p.getId(), p.getNome(), p.getImagem(), StringUtils.formatPrice(p.getPrecoVitrine())
+                            )
+                    );
+            });
+
+            vitrineEstabelecimento.add(new VitrineEstabelecimentoDto(e.getId(), e.getName(), e.getLogo(), produtosDeEstabelecimentosDto));
         });
 
-        return new TelaVitrine(produtoDtos,vitrineEstabelecimento,dadosDeCabecalhos.getPrimeiraCompra());
+        return new TelaVitrine(produtoDtos, vitrineEstabelecimento, dadosDeCabecalhos.getPrimeiraCompra());
     }
 
     public void adicionarAoCarrinho(AdicionamentoDeProdutoAoCarrinho dto, DadosDeCabecalhos dadosDeCabecalhos) {
@@ -414,19 +419,18 @@ public class ServicoDaLoja {
     }
 
     public void postarFormularioPrimeiraCompra(ReqPrimeiraCompra dto, DadosDeCabecalhos dadosDeCabecalhos) {
-        Usuario usuario =  repositorioDeUsuario.findById(dadosDeCabecalhos.getIdUsuario()).get();
+        Usuario usuario = repositorioDeUsuario.findById(dadosDeCabecalhos.getIdUsuario()).get();
         usuario.setPrimeiraCompra(false);
         repositorioDeUsuario.save(usuario);
 
     }
 
 
-
     public TelaDePedidosParaClientes obterPedidos(DadosDeCabecalhos dadosDeCabecalhos) {
         List<Pedido> pedidosDoUsuario = repositorioDePedidos.findByUsuario(dadosDeCabecalhos.getIdUsuario());
         List<PedidoDto> pedido = new ArrayList<>();
 
-        pedidosDoUsuario.forEach( p -> {
+        pedidosDoUsuario.forEach(p -> {
             pedido.add(new PedidoDto(
                     p.getId(),
                     p.getImagem(),
@@ -441,12 +445,12 @@ public class ServicoDaLoja {
     }
 
     public void editarProduto(ReqEdicaoProduto dto, long l) {
-        if(repositorioDeEstabelecimentos.findById(l).isPresent()){
+        if (repositorioDeEstabelecimentos.findById(l).isPresent()) {
             Produto produto = repositorioDeProdutos.findById(Long.parseLong(dto.getIdDoProduto())).get();
             produto.setPrecoVitrine(dto.getPreco().multiply(BigDecimal.valueOf(1.2)));
             produto.setCategoriaProduto(dto.getCategoria());
 
-            if(dto.getTrocouImagem()){
+            if (dto.getTrocouImagem()) {
                 produto.setImagem(dto.getImagem());
             }
             produto.setNome(dto.getNome());
@@ -460,5 +464,12 @@ public class ServicoDaLoja {
         Optional<Produto> byId = repositorioDeProdutos.findById(l);
         Produto produto = byId.get();
         return produto;
+    }
+
+    public void deletarProduto(DadosDeCabecalhos dadosDeCabecalhos, Long idProduto) {
+        Optional<Estabelecimento> estabelecimentoOptional = repositorioDeEstabelecimentos.findById(dadosDeCabecalhos.getIdEstabecimento());
+        if( estabelecimentoOptional.isPresent()){
+            repositorioDeProdutos.deleteById(idProduto);
+        }
     }
 }

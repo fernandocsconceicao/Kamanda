@@ -41,6 +41,10 @@ public class Produto {
     private Integer prazoDeEntrega;
     private Integer popularidade;
     private Boolean disponivel;
+    @Lob
+    private byte[] imagem2;
+    @Lob
+    private byte[] imagemDeExibicaoDeRoupa;
 
     public static Produto build(ReqCriacaoDeProduto dto, Estabelecimento estabelecimento) {
         return new Produto(
@@ -63,7 +67,9 @@ public class Produto {
                 dto.getEstoque(),
                 dto.getPrazoDeEntrega(),
                 0,
-                dto.getDisponivel()
+                dto.getDisponivel(),
+                null,
+                null
         );
 
     }

@@ -7,7 +7,6 @@ import br.app.camarada.backend.filtros.CustomServletWrapper;
 import br.app.camarada.backend.servicos.ServicoDaLoja;
 import br.app.camarada.backend.servicos.ServicoParaUsuarios;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -33,9 +32,9 @@ public class ControladorDaLoja {
                 servicoDaLoja.obterVitrine(
                         DadosDeCabecalhos.builder().idUsuario(l).primeiraCompra(Boolean.parseBoolean(request.getHeader(Cabecalhos.PRIMEIRA_COMPRA.toString()))).build()
                 );
-        System.out.println(new ObjectMapper().writeValueAsString(telaVitrine.getEstabelecimentos()));
         return ResponseEntity.ok().body(telaVitrine);
     }
+
     @GetMapping(value = "/pedidos")
     public ResponseEntity<TelaDePedidosParaClientes> obterEntregas(CustomServletWrapper request) {
         long l = Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue()));
@@ -44,6 +43,7 @@ public class ControladorDaLoja {
         );
         return ResponseEntity.ok().body(telaPedidos);
     }
+
     @PostMapping("/produto/editar")
     public ResponseEntity<Void> editarProduto(@RequestBody ReqEdicaoProduto dto, CustomServletWrapper request) {
         log.info("Iniciando requisição  de listagem de Produtos de estabelecimento");
@@ -51,6 +51,7 @@ public class ControladorDaLoja {
         log.info("Finalizando requisição  de listagem de Produtos de estabelecimento");
         return ResponseEntity.ok().build();
     }
+
     @PostMapping("editarproduto")
     public ResponseEntity<TelaDeEdicaoDeProdutos> obterTelaDeEdicaoDeProdutos(@RequestBody ReqTelaDeEdicaoProduto dto) {
         List<CategoriaDto> categorias = Arrays.stream(CategoriaProduto.values())
@@ -80,7 +81,6 @@ public class ControladorDaLoja {
                         Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue()))
                 ).build()
         );
-        System.out.println(screen);
         log.info("Finalizando request de tela de Carrinho");
         return ResponseEntity.ok().body(screen);
     }
@@ -125,21 +125,27 @@ public class ControladorDaLoja {
 
 
     @PostMapping("/produto/remover")
-    public ResponseEntity<Void> removerProduto() {
+    public ResponseEntity<Void> removerProduto(@RequestBody RequisicaoExclusaoDeProduto req, CustomServletWrapper request) {
+        servicoDaLoja
+                .deletarProduto(DadosDeCabecalhos
+                                .builder()
+                                .idEstabecimento(Long.parseLong(request.getHeader(Cabecalhos.ESTABELECIMENTO.getValue()))).build(),
+                        req.getIdProduto()
+                );
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/primeiracompra")
     public ResponseEntity<Void> primeiracompra(@RequestBody ReqPrimeiraCompra dto, CustomServletWrapper request) {
         String endereco = request.getHeader(Cabecalhos.ENDERECO.getValue());
-        Long idEndereco=null;
+        Long idEndereco = null;
 
-        if(endereco == null){
-            idEndereco= servicoParaUsuarios.obterEndereco(DadosDeCabecalhos.builder()
-                    .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))
-                    .build())
+        if (endereco == null) {
+            idEndereco = servicoParaUsuarios.obterEndereco(DadosDeCabecalhos.builder()
+                            .idUsuario(Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue())))
+                            .build())
                     .getId();
-        }else{
+        } else {
             idEndereco = Long.parseLong(request.getHeader(Cabecalhos.ENDERECO.getValue()));
         }
 
@@ -155,12 +161,12 @@ public class ControladorDaLoja {
                 DadosDeCabecalhos.builder().idEndereco(idEndereco)
                         .build()
         );
-        if(enderecoEditado){
+        if (enderecoEditado) {
             servicoDaLoja.postarFormularioPrimeiraCompra(dto, DadosDeCabecalhos.builder()
                     .idUsuario(
                             Long.parseLong(request.getHeader(Cabecalhos.USUARIO.getValue()))
                     ).build());
-        }else {
+        } else {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
